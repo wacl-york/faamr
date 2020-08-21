@@ -18,3 +18,6 @@ NMB
 Calculates the normalised mean bias (NMB) of modelled and measured
 values according to formula in Emery 2017 (doi: 10.1080/10962247.2016.1265027)
 }
+\author{
+Freya Squires
+}
