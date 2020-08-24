@@ -21,7 +21,7 @@ read_faam_was_worker <- function(file){
   file <- file
 
   #get header names, file date and missing flag information
-  meta <- read_nasa_ames(file)
+  meta <- ReadNasaAmes(file)
 
   #get flight number from file name - NOTE this may change for different age of files
   flight_no <- str_sub(file, start = 34, end = 37) %>%

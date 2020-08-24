@@ -22,7 +22,7 @@ read_yorknox_data_worker <- function(file){
   file <- file
 
   #get header names, file date and missing flag information
-  meta <- read_nasa_ames(file)
+  meta <- ReadNasaAmes(file)
 
   #get flight number from the file name
   flight_no <- str_sub(file, start = 35, end = 38) %>%
