@@ -1,6 +1,6 @@
-#' Read FAAM nitrate files
+#'Read FAAM nitrate files
 #'
-#'Reads and cleans core nitrates FAAM file. 
+#'Reads and cleans core nitrates FAAM file.
 #'
 #'
 #' @name read_nitrates_data
@@ -13,7 +13,7 @@
 #' @author Freya Squires
 #'
 #' @export
-
+#'
 
 read_nitrates_data <- function(nitrates_file_list, frequency = 1, verbose = TRUE) {
   
