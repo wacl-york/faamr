@@ -2,6 +2,7 @@
 
 export(NormalisedMeanBias)
 export(ReadNasaAmes)
+export(quantile25)
 export(read_faam_was)
 export(read_geos_cf)
 export(read_nitrates_data)
