@@ -24,7 +24,7 @@ read_faam_was_worker <- function(file){
   meta <- ReadNasaAmes(file)
 
   #get flight number from file name - NOTE this may change for different age of files
-  flight_no <- str_sub(file, start = 34, end = 37) %>%
+  flight_no <- str_sub(basename(file), start = 34, end = 37) %>%
     tolower()
 
   df <- read.table(file,
