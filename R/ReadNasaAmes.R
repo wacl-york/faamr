@@ -62,9 +62,9 @@ ReadNasaAmes <- function(file){
 
   #select and parse date
   date = header[date_row] %>%
-    str_split(" ")
+    stringr::str_split(" ")
 
-  date = ymd(paste(date[[1]][1:3],collapse = ""),tz = "UTC")
+  date = lubridate::ymd(paste(date[[1]][1:3],collapse = ""),tz = "UTC")
 
   # Return
   list(date = date,

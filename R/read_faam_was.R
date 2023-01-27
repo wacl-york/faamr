@@ -13,7 +13,7 @@
 #' @export
 
 read_faam_was <- function(was_file_list) {
-  map_dfr(was_file_list, read_faam_was_worker)
+  purrr::map_dfr(was_file_list, read_faam_was_worker)
 }
 
 read_faam_was_worker <- function(file){
@@ -24,7 +24,7 @@ read_faam_was_worker <- function(file){
   meta <- ReadNasaAmes(file)
 
   #get flight number from file name - NOTE this may change for different age of files
-  flight_no <- str_sub(basename(file), start = 34, end = 37) %>%
+  flight_no <- stringr::str_sub(basename(file), start = 34, end = 37) %>%
     tolower()
 
   df <- read.table(file,

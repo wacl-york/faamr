@@ -13,7 +13,7 @@
 
 read_geos_cf <- function (model_file_list)
 {
-  map_dfr(model_file_list, read_geos_cf_worker)
+  purrr::map_dfr(model_file_list, read_geos_cf_worker)
 }
 
 read_geos_cf_worker <- function(file){
@@ -22,14 +22,14 @@ read_geos_cf_worker <- function(file){
 
   df <- read.csv(file)
 
-  df <- mutate(df,
-               date = ymd_hms(df$Datetime),
-               O3 = O3*1e9,
-               CO = CO*1e9,
-               SO2=SO2*1e9,
-               NO=NO*1e12,
-               NO2=NO2*1e12,
-               HCHO=HCHO*1e9)
-
+  df <- dplyr::mutate(df,
+                      date = ymd_hms(df$Datetime),
+                      O3 = O3*1e9,
+                      CO = CO*1e9,
+                      SO2=SO2*1e9,
+                      NO=NO*1e12,
+                      NO2=NO2*1e12,
+                      HCHO=HCHO*1e9)
+  
   return(df)
 }

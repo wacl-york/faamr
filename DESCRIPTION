@@ -1,14 +1,23 @@
 Package: faamr
-Title: What the Package Does (One Line, Title Case)
+Title: Miscellaneous functions for reading and analysing FAAM data
 Version: 0.0.0.9000
 Authors@R: 
-    person(given = "First",
-           family = "Last",
-           role = c("aut", "cre"),
-           email = "first.last@example.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
-License: What license it uses
+    person(given = "Freya",
+           family = "Squires",
+           email = "frees@bas.ac.uk",
+           comment = c(ORCID = "0000-0002-3364-4617"))
+Description: Makes FAAM data analysis easier!
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.1
+RoxygenNote: 7.2.1
+Imports: 
+    dplyr,
+    lubridate,
+    ncdf4,
+    purrr,
+    reshape2,
+    stringr,
+    threadr (>= 0.9.234)
+Remotes: 
+    github::skgrange/threadr

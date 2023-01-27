@@ -17,8 +17,8 @@
 
 read_nitrates_data <- function(nitrates_file_list, frequency = 1, verbose = TRUE) {
   
-  map_dfr(nitrates_file_list, read_nitrates_worker,
-          verbose = verbose, frequency = frequency)
+  purrr::map_dfr(nitrates_file_list, read_nitrates_worker,
+                 verbose = verbose, frequency = frequency)
 }
 
 read_nitrates_worker <- function(file, verbose, frequency) {
@@ -41,11 +41,11 @@ read_nitrates_worker <- function(file, verbose, frequency) {
   date <- date_start + as.vector(nc$dim$time$vals) 
   
   # get flight number
-  flight_no <- meta_data[str_which(meta_data, "flight_number")] %>% 
-    str_split(":", simplify = F)  %>% 
-    map_chr(`[` (2)) %>% 
-    str_remove(" ") %>% 
-    str_to_lower()
+  flight_no <- meta_data[stringr::str_which(meta_data, "flight_number")] %>% 
+    stringr::str_split(":", simplify = F)  %>% 
+    purrr::map_chr(`[` (2)) %>% 
+    stringr::str_remove(" ") %>% 
+    stringr::str_to_lower()
   
   # Get variable names
   variables <- names(nc$var)
@@ -60,28 +60,28 @@ read_nitrates_worker <- function(file, verbose, frequency) {
   
   # Function to change colnames
   change_colname_value <- function(df, new_colname){
-    df %>% rename(!!new_colname := value)
+    df %>% dplyr::rename(!!new_colname := value)
   }
   
   # extract all 10 Hz matrix elements
   nc_matrix <- list_nc %>% 
-    keep(is.matrix)
+    purrr::keep(is.matrix)
   
   # get matrix names
   names_matrix <- names(nc_matrix)
   
   # clean and bind all 10 Hz data  
   data_10hz <- nc_matrix %>% 
-    map(reshape2::melt) %>% 
-    map(as_tibble) %>% 
-    map2(names_matrix, change_colname_value) %>% 
-    map(select, -1:-2) %>%  
-    reduce(bind_cols) %>% 
-    mutate(date = rep(date, each = 10)) 
+    purrr::map(reshape2::melt) %>% 
+    purrr::map(as_tibble) %>% 
+    purrr::map2(names_matrix, change_colname_value) %>% 
+    purrr::map(select, -1:-2) %>%  
+    purrr::reduce(bind_cols) %>% 
+    dplyr::mutate(date = rep(date, each = 10)) 
   
   # extract all 1 Hz elements
   nc_array <- list_nc %>% 
-    discard(is.matrix)
+    purrr::discard(is.matrix)
   
   # get array names
   names_array <- names(nc_array)
@@ -91,27 +91,27 @@ read_nitrates_worker <- function(file, verbose, frequency) {
   
   # clean and bind 1 Hz data
   data_1hz <- nc_array %>% 
-    map(as_tibble) %>% 
-    map(mutate, date = date) %>% 
-    map2(names_array, change_colname_value) %>% 
-    reduce(left_join, "date") 
+    purrr::map(as_tibble) %>% 
+    purrr::map(mutate, date = date) %>% 
+    purrr::map2(names_array, change_colname_value) %>% 
+    purrr::reduce(left_join, "date") 
   
   # merge all data - output data at user determined frequency
   
   if(frequency == 10)
     data_all <- data_10hz %>% 
-    left_join(data_1hz, "date") %>% 
-    mutate(flight_no = flight_no) %>% 
-    select(date, flight_no, everything())
+    dplyr::left_join(data_1hz, "date") %>% 
+    dplyr::mutate(flight_no = flight_no) %>% 
+    dplyr::select(date, flight_no, everything())
   
   
   if(frequency == 1)
     data_all <- data_10hz %>%
-    group_by(date) %>% 
-    summarise_all(mean) %>% 
-    left_join(data_1hz, "date") %>% 
-    mutate(flight_no = flight_no) %>% 
-    select(date, flight_no, everything())
+    dplyr::group_by(date) %>% 
+    dplyr::summarise_all(mean) %>% 
+    dplyr::left_join(data_1hz, "date") %>% 
+    dplyr::mutate(flight_no = flight_no) %>% 
+    dplyr::select(date, flight_no, everything())
   
   
   return(data_all)
