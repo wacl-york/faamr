@@ -2,15 +2,13 @@ Package: faamr
 Title: Miscellaneous functions for reading and analysing FAAM data
 Version: 0.0.0.9000
 Authors@R: 
-    person(given = "Freya",
-           family = "Squires",
-           email = "frees@bas.ac.uk",
+    person("Freya", "Squires", , "frees@bas.ac.uk", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-3364-4617"))
 Description: Makes FAAM data analysis easier!
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 Imports: 
     dplyr,
     lubridate,
