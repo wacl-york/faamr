@@ -1,3 +1,20 @@
+#' Read Faam Core
+#' 
+#' Reads either the high time resolution or 1 Hz faam core files
+#' 
+#' @param filepath path to file
+#' @param startDate string that can be cohered to a nanotime via: \code{nanotime::nanotime(startDate, format = "seconds since %Y-%m-%d %H:%M:%S %z")}
+#'                  used to filter \code{tidync::hyper_array()}
+#' @param endDate string that can be cohered to a nanotime via: \code{nanotime::nanotime(endDate, format = "seconds since %Y-%m-%d %H:%M:%S %z")}
+#'                used to filter \code{tidync::hyper_array()}
+#' @param selectVar vector of varibale names to load - loading all of them can take a long time!
+#' @param sps samples per second - one of 2, 4, 32, 64. default 32
+#' @param averageNanoString string to pass to \code{nanotime::nano_floor(date, nanotime::as.nanoduration(averageNanoString)))} for resampling date
+#' 
+#' @author W. S. Drysdale
+#' 
+#' @export
+
 
 read_famm_core = function(filepath, 
                           startDate = NULL, 
@@ -5,7 +22,7 @@ read_famm_core = function(filepath,
                           selectVar = NULL,
                           sps = c(2,4,32,64)[3],
                           averageNanoString = NULL # to resample to 10 Hz, argument is "00:00:00.1"
-                          ){
+){
   
   dat_meta = ncmeta::nc_meta(filepath)
   
@@ -29,7 +46,10 @@ read_famm_core = function(filepath,
     dat_nc = tidync::hyper_filter(dat_nc, 
                                   Time = between(Time, startSeconds, endSeconds))
   }else{
-    startSeconds = 0 # set start seconds to zero so we can add use it in the timestamp, even if we arent filtering
+    
+    # set start seconds to the begining of the file so we can add use it in the timestamp, even if we arent filtering
+    startSeconds = min(tidync::hyper_transforms(dat_nc)$Time$Time)
+    
   }
   
   if(nrow(dat_meta$dimension) > 1){ # for raw file
@@ -41,10 +61,10 @@ read_famm_core = function(filepath,
     
     dat_nc = dat_nc %>% 
       tidync::activate(gridName)
-
+    
     dat = dat_nc %>% 
       tidync::hyper_array(select_var = selectVar) %>% 
-      list(., along = 3) %>% 
+      list(., along = 3) %>%
       do.call(getFromNamespace("abind","abind"),.) %>% 
       as.data.frame.table(responseName = "value",
                           stringsAsFactors = TRUE) %>% 
@@ -71,10 +91,10 @@ read_famm_core = function(filepath,
       dplyr::select(date ,seconds_since_midnight, name, value)
     
   }
-
+  
   if(!is.null(averageNanoString)){
     dat = dat %>% 
-      mutate(date = nanotime::nano_floor(date, as.nanoduration(averageNanoString))) %>% 
+      mutate(date = nanotime::nano_floor(date, nanotime::as.nanoduration(averageNanoString))) %>% 
       group_by(date, name) %>% 
       summarise_all(mean, na.rm = T) %>% 
       ungroup()
