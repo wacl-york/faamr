@@ -67,7 +67,8 @@ read_famm_core = function(filepath,
                           stringsAsFactors = TRUE) |> 
       dplyr::tibble() |> 
       dplyr::mutate(subsecond = as.integer(Var1),
-                    subsecond = (subsecond-1)/max(subsecond-1),
+                    subsecond = subsecond/max(subsecond),
+                    subsecond = subsecond-min(subsecond),
                     seconds_since_midnight = as.integer(Var2)+subsecond-1+startSeconds,
                     name = as.character(Var3),
                     date = (seconds_since_midnight*1e9)+dateOrigin) |> 
