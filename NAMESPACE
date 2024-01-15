@@ -2,6 +2,8 @@
 
 export(NormalisedMeanBias)
 export(ReadNasaAmes)
+export(getCoreDateOrigin)
+export(getWeightOffWheels)
 export(quantile25)
 export(read_faam_was)
 export(read_famm_core)

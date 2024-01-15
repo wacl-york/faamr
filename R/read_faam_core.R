@@ -27,12 +27,7 @@ read_famm_core = function(filepath,
   dat_meta = ncmeta::nc_meta(filepath)
   
   # get the date origin (midnight on date of flight)
-  dateOrigin = dat_meta$attribute |> 
-    dplyr::filter(variable == "Time",
-                  name == "units") |> 
-    tidyr::unnest(value) |> 
-    purrr::pluck("value") |> 
-    nanotime::nanotime(format = "seconds since %Y-%m-%d %H:%M:%S %z")
+  dateOrigin = getCoreDateOrigin(filepath)
   
   dat_nc = tidync::tidync(filepath)
   
@@ -44,7 +39,7 @@ read_famm_core = function(filepath,
     endSeconds = as.numeric(endNano-dateOrigin)/1e9
     
     dat_nc = tidync::hyper_filter(dat_nc, 
-                                  Time = between(Time, startSeconds, endSeconds))
+                                  Time = dplyr::between(Time, startSeconds, endSeconds))
   }else{
     
     # set start seconds to the begining of the file so we can add use it in the timestamp, even if we arent filtering

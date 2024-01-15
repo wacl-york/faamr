@@ -12,10 +12,14 @@ RoxygenNote: 7.2.3
 Imports: 
     dplyr,
     lubridate,
+    nanotime,
     ncdf4,
+    ncmeta,
     purrr,
     reshape2,
     stringr,
-    threadr (>= 0.9.234)
+    threadr (>= 0.9.234),
+    tidync,
+    tidyr
 Remotes: 
     github::skgrange/threadr
