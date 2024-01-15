@@ -94,10 +94,10 @@ read_famm_core = function(filepath,
   
   if(!is.null(averageNanoString)){
     dat = dat |> 
-      mutate(date = nanotime::nano_floor(date, nanotime::as.nanoduration(averageNanoString))) |> 
-      group_by(date, name) |> 
-      summarise_all(mean, na.rm = T) |> 
-      ungroup()
+      dplyr::mutate(date = nanotime::nano_floor(date, nanotime::as.nanoduration(averageNanoString))) |> 
+      dplyr::group_by(date, name) |> 
+      dplyr::summarise_all(mean, na.rm = T) |> 
+      dplyr::ungroup()
   }
   
   # 
