@@ -3,9 +3,9 @@
 #' Reads either the high time resolution or 1 Hz faam core files
 #' 
 #' @param filepath path to file
-#' @param startDate string that can be cohered to a nanotime via: \code{nanotime::nanotime(startDate, format = "seconds since %Y-%m-%d %H:%M:%S %z")}
+#' @param startDate string that can be cohered to a nanotime via: \code{nanotime::nanotime(startDate, format = "seconds since \%Y-\%m-\%d \%H:\%M:\%S \%z")}
 #'                  used to filter \code{tidync::hyper_array()}
-#' @param endDate string that can be cohered to a nanotime via: \code{nanotime::nanotime(endDate, format = "seconds since %Y-%m-%d %H:%M:%S %z")}
+#' @param endDate string that can be cohered to a nanotime via: \code{nanotime::nanotime(endDate, format = "seconds since \%Y-\%m-\%d \%H:\%M:\%S \%z")}
 #'                used to filter \code{tidync::hyper_array()}
 #' @param selectVar vector of varibale names to load - loading all of them can take a long time!
 #' @param sps samples per second - one of 2, 4, 32, 64. default 32
@@ -16,7 +16,7 @@
 #' @export
 
 
-read_famm_core = function(filepath, 
+read_faam_core = function(filepath, 
                           startDate = NULL, 
                           endDate = NULL,
                           selectVar = NULL,
