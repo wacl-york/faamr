@@ -7,6 +7,8 @@
 write_ADMS_config(config, path)
 }
 \arguments{
+\item{config}{list that represents the ADMS config to write to disk. Structure can be made by reading a config with \code{read_ADMS_config()}}
+
 \item{path}{path to ADMS config file}
 }
 \description{

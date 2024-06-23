@@ -6,6 +6,9 @@
 \usage{
 tidy_flight_data_check(flightDataCheck)
 }
+\arguments{
+\item{flightDataCheck}{output of \code{check_flight_data()}}
+}
 \description{
 Turns the the output of \code{check_flight_data()} into a data.frame
 }

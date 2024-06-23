@@ -13,9 +13,9 @@ getCoreDateOrigin = function(filepath){
   dat_meta = ncmeta::nc_meta(filepath)
   
   dateOrigin = dat_meta$attribute |> 
-    dplyr::filter(variable == "Time",
-                  name == "units") |> 
-    tidyr::unnest(value) |> 
+    dplyr::filter(.data$variable == "Time",
+                  .data$name == "units") |> 
+    tidyr::unnest(.data$value) |> 
     purrr::pluck("value") |> 
     nanotime::nanotime(format = "seconds since %Y-%m-%d %H:%M:%S %z")
   

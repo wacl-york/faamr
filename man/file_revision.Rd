@@ -6,6 +6,9 @@
 \usage{
 file_revision(name)
 }
+\arguments{
+\item{name}{file name to extract revision from}
+}
 \description{
 Gets the file revision number from file name.
 }

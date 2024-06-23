@@ -6,25 +6,24 @@
 #' @param force For performance the flight list is cached in an environment variable \code{the$flightList}. Set true to force scraping CEDA.
 #'
 #' @export
-#'
 #' @author W. S. Drysdale
 
 list_flights = function(force = F){
   
   if(is.null(the$flightList) | force){
     
-    yearDirs = jsonlite::fromJSON(paste0(faamr:::ceda_url(), "/badc/faam/data?json"))$items |> 
+    yearDirs = jsonlite::fromJSON(paste0(ceda_url(), "/badc/faam/data?json"))$items |> 
       tibble::as_tibble() |> 
-      dplyr::filter(type ==  "dir")
+      dplyr::filter(.data$type ==  "dir")
     
-    flightList = purrr::map_df(yearDirs$path, function(x) jsonlite::fromJSON(paste0(faamr:::ceda_url(), x ,"?json"))$items |> 
+    flightList = purrr::map_df(yearDirs$path, function(x) jsonlite::fromJSON(paste0(ceda_url(), x ,"?json"))$items |> 
                                  dplyr::mutate(yr = basename(x))) |> 
       tibble::as_tibble() |> 
-      dplyr::filter(type == "dir") |> 
-      dplyr::mutate(flightNumber = stringr::word(name, 1, sep = "-"),
-                    date = as.POSIXct(paste(yr, stringr::word(name, 2, 3, sep = "-")),format = "%Y %b-%d")
+      dplyr::filter(.data$type == "dir") |> 
+      dplyr::mutate(flightNumber = stringr::word(.data$name, 1, sep = "-"),
+                    date = as.POSIXct(paste(.data$yr, stringr::word(.data$name, 2, 3, sep = "-")),format = "%Y %b-%d")
       ) |> 
-      dplyr::select(path, name, date, flightNumber)
+      dplyr::select(.data$path, .data$name, .data$date, .data$flightNumber)
     
     the$flightList = flightList
     
@@ -54,7 +53,7 @@ list_flight_data = function(flight, verbose = TRUE){
   flight = tolower(flight)
   
   fl = list_flights() |> 
-    dplyr::filter(flightNumber %in% flight)
+    dplyr::filter(.data$flightNumber %in% flight)
   
   if(nrow(fl) == 0){
     stop("No flights found")
@@ -71,7 +70,7 @@ list_flight_data = function(flight, verbose = TRUE){
   
   out = purrr::map_df(flight, 
                       ~faamr::check_flight_data(.x, verbose) |> 
-                        faamr:::tidy_flight_data_check() |> 
+                        tidy_flight_data_check() |> 
                         dplyr::mutate(flightNumber = .x)
   )
   
@@ -92,7 +91,7 @@ list_flight_data = function(flight, verbose = TRUE){
 #' @inheritParams list_flight_data
 #' 
 #' @author W. S. Drysdale
-#' 
+#'
 #' @export
 
 
@@ -101,9 +100,9 @@ check_flight_data = function(flight, verbose = TRUE){
   cli::cli_h1(flight)
   
   fl = faamr::list_flights() |> 
-    dplyr::filter(flightNumber %in% flight)
+    dplyr::filter(.data$flightNumber %in% flight)
   
-  flightFolder = jsonlite::fromJSON(paste0(faamr:::ceda_url(), fl$path,"?json"))$items |> 
+  flightFolder = jsonlite::fromJSON(paste0(ceda_url(), fl$path,"?json"))$items |> 
     tibble::as_tibble() 
   
   flightDataCheck = list(flightSum = list(name =  "Flight summary",
@@ -130,7 +129,7 @@ check_flight_data = function(flight, verbose = TRUE){
         if(x$isDir){
           x$dir = flightFolder$path[stringr::str_detect(flightFolder$path, x$pattern)]
           
-          x$subFolder = jsonlite::fromJSON(paste0(faamr:::ceda_url(), x$dir,"?json"))$items |> 
+          x$subFolder = jsonlite::fromJSON(paste0(ceda_url(), x$dir,"?json"))$items |> 
             tibble::as_tibble() |> 
             dplyr::mutate(subFolder = x$name)
           
@@ -170,7 +169,7 @@ print_flight_data = function(flightDataCheck){
         cli::cli_ul()
         
         subFolder = x$subFolder |> 
-          faamr:::filter_revision()
+          filter_revision()
         
         
         split(subFolder, 1:nrow(subFolder)) |> 
@@ -199,12 +198,14 @@ print_flight_data = function(flightDataCheck){
 #' Tidy Flight Data Check
 #' 
 #' Turns the the output of \code{check_flight_data()} into a data.frame
+#' 
+#' @param flightDataCheck output of \code{check_flight_data()}
 
 tidy_flight_data_check = function(flightDataCheck){
   purrr::map_df(names(flightDataCheck), 
                 ~purrr::pluck(flightDataCheck,.x,"subFolder")) |> 
-    dplyr::select(path, name, type, subFolder) |> 
-    faamr:::filter_revision() 
+    dplyr::select(.data$path, .data$name, .data$type, .data$subFolder) |> 
+    filter_revision() 
 }
 
 
@@ -219,6 +220,8 @@ ceda_url = function(){
 #' File Revision
 #' 
 #' Gets the file revision number from file name.
+#' 
+#' @param name file name to extract revision from
 
 file_revision = function(name){
   
@@ -232,14 +235,17 @@ file_revision = function(name){
 #' Filter Revision
 #' 
 #' given a flight folder data.frame, return the only the most recently revised versions of each file
+#' 
+#' @param folder tibble representing the folder on CEDA
 
 filter_revision = function(folder){
+  
   folder |> 
-    dplyr::mutate(r = faamr:::file_revision(name),
-                  r = ifelse(is.na(r),0, r), 
-                  nameNoR = stringr::str_remove(name, stringr::regex("_r([0-9])_")),
-                  nameNoR = ifelse(is.na(nameNoR), name, nameNoR)) |> 
-    dplyr::group_by(nameNoR) |> 
-    dplyr::filter(r == max(r))
+    dplyr::mutate(r = file_revision(.data$name),
+                  r = ifelse(is.na(.data$r),0, .data$r), 
+                  nameNoR = stringr::str_remove(.data$name, stringr::regex("_r([0-9])_")),
+                  nameNoR = ifelse(is.na(.data$nameNoR), .data$name, .data$nameNoR)) |> 
+    dplyr::group_by(.data$nameNoR) |> 
+    dplyr::filter(.data$r == max(.data$r))
   
 }

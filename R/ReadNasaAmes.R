@@ -16,30 +16,30 @@
 ReadNasaAmes <- function(file){
 
   # return the header length
-  hl <- readLines(file, n = 1) %>%
-    stringr::str_replace_all("\t"," ") %>%
-    stringr::str_split(" ") %>%
-    unlist() %>%
-    as.numeric() %>%
-    na.omit() %>%
-    `[`(1)
+  hl <- readLines(file, n = 1) |> 
+    stringr::str_replace_all("\t"," ") |> 
+    stringr::str_split(" ") |> 
+    unlist() |> 
+    as.numeric() |> 
+    stats::na.omit() |> 
+    purrr::pluck(1)
 
   # Read the header
   # Commonly in NASA Ames files tested the header length given does not include the
   # column names so header length is 1 more than the length given in the file
-  header<- readLines(file,n = hl+1)
+  header<- base::readLines(file,n = hl+1)
 
   # get header shape info
   # number of unique elements per line of header
-  header_element_length = str_split(header,"\\s+") %>%
+  header_element_length = stringr::str_split(header,"\\s+")  |> 
     purrr::map_int(length)
 
   # header element length will be 1 and can be coerceced to numeric class if it is a number
   # defining the length of comments in a header. If these are pulled out we can split
   # header into useful elements
-  comment_lengths = header[header_element_length == 1] %>%
-    as.numeric() %>%
-    na.omit()
+  comment_lengths = header[header_element_length == 1]  |> 
+    as.numeric() |> 
+    stats::na.omit()
 
   #Which lines describe number of lines in each section.
   linebreaks <- which(as.numeric(header) %in% comment_lengths)
@@ -61,7 +61,7 @@ ReadNasaAmes <- function(file){
   date_row <- 7
 
   #select and parse date
-  date = header[date_row] %>%
+  date = header[date_row]  |> 
     stringr::str_split(" ")
 
   date = lubridate::ymd(paste(date[[1]][1:3],collapse = ""),tz = "UTC")

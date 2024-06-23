@@ -6,6 +6,9 @@
 \usage{
 filter_revision(folder)
 }
+\arguments{
+\item{folder}{tibble representing the folder on CEDA}
+}
 \description{
 given a flight folder data.frame, return the only the most recently revised versions of each file
 }

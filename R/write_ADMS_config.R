@@ -6,6 +6,7 @@
 #' 
 #' Best used after editing a working ADMS config file that has been loaded using \code{read_ADMS_config()} 
 #' 
+#' @param config list that represents the ADMS config to write to disk. Structure can be made by reading a config with \code{read_ADMS_config()} 
 #' @param path path to ADMS config file
 #' 
 #' @export

@@ -10,6 +10,8 @@ NormalisedMeanBias(modelled, observations, na.rm)
 \item{modelled}{Column of modelled values}
 
 \item{observations}{Column of measured values}
+
+\item{na.rm}{a logical evaluating to TRUE or FALSE indicating whether NA values should be stripped before the computation proceeds.}
 }
 \value{
 NMB

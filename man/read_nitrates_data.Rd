@@ -9,13 +9,13 @@ read_nitrates_data(nitrates_file_list, frequency = 1)
 \arguments{
 \item{nitrates_file_list}{List containing file names}
 
-\item{frequency}{Frequency in Hz to output the data at. FAAM nirate files can be outputted at 1 or 10 Hz.}
+\item{frequency}{Frequency in Hz to output the data at. FAAM nitrate files can be outputted at 1 or 10 Hz.}
 }
 \value{
 Tibble
 }
 \description{
-Reads and cleans core nitrates FAAM file.
+Reads and cleans core nitrates FAAM file. TODO update to use tidync and remove reshape dependency
 }
 \author{
 Shona Wilde

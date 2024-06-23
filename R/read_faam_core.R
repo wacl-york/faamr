@@ -39,7 +39,7 @@ read_faam_core = function(filepath,
     endSeconds = as.numeric(endNano-dateOrigin)/1e9
     
     dat_nc = tidync::hyper_filter(dat_nc, 
-                                  Time = dplyr::between(Time, startSeconds, endSeconds))
+                                  Time = dplyr::between(.data$Time, .data$startSeconds, .data$endSeconds))
   }else{
     
     # set start seconds to the begining of the file so we can add use it in the timestamp, even if we arent filtering
@@ -49,8 +49,8 @@ read_faam_core = function(filepath,
   
   if(nrow(dat_meta$dimension) > 1){ # for raw file
     dimToActivate = dat_meta$dimension |> 
-      dplyr::mutate(did = paste0("D",id)) |> 
-      dplyr::filter(length == sps)
+      dplyr::mutate(did = paste0("D",.data$id)) |> 
+      dplyr::filter(.data$length == sps)
     
     gridName = paste0(dimToActivate$did,",D0")
     
@@ -61,42 +61,42 @@ read_faam_core = function(filepath,
       tidync::hyper_array(select_var = selectVar)
     
     datList = list(datArray, along = 3)
-    
-    dat = do.call(getFromNamespace("abind","abind"),datList) |> 
+
+    dat = do.call(get("abind", getNamespace("abind")),datList) |> 
       as.data.frame.table(responseName = "value",
                           stringsAsFactors = TRUE) |> 
       dplyr::tibble() |> 
-      dplyr::mutate(subsecond = as.integer(Var1),
-                    subsecond = subsecond/max(subsecond),
-                    subsecond = subsecond-min(subsecond),
-                    seconds_since_midnight = as.integer(Var2)+subsecond-1+startSeconds,
-                    name = as.character(Var3),
-                    date = (seconds_since_midnight*1e9)+dateOrigin) |> 
-      dplyr::select(date ,seconds_since_midnight, name, value)
+      dplyr::mutate(subsecond = as.integer(.data$Var1),
+                    subsecond = .data$subsecond/max(.data$subsecond),
+                    subsecond = .data$subsecond-min(.data$subsecond),
+                    seconds_since_midnight = as.integer(.data$Var2)+.data$subsecond-1+.data$startSeconds,
+                    name = as.character(.data$Var3),
+                    date = (.data$seconds_since_midnight*1e9)+.data$dateOrigin) |> 
+      dplyr::select(.data$date, .data$seconds_since_midnight, .data$name, .data$value)
     
   }else{ # for the 1 hz file
     
     datArray = dat_nc |> 
       tidync::hyper_array(select_var = selectVar)
       
-    datList = list(., along = 2)
+    datList = list(datArray, along = 2)
     
-    dat = do.call(getFromNamespace("abind","abind"),.) |> 
+    dat = do.call(get("abind", getNamespace("abind")),datList) |> 
       as.data.frame.table(responseName = "value",
                           stringsAsFactors = TRUE) |> 
       dplyr::tibble() |> 
-      dplyr::mutate(seconds_since_midnight = (as.integer(Var1)-1+startSeconds),
-                    name = as.character(Var2),
-                    date = (seconds_since_midnight*1e9)+dateOrigin) |>  
-      dplyr::select(date ,seconds_since_midnight, name, value)
+      dplyr::mutate(seconds_since_midnight = (as.integer(.data$Var1)-1+.data$startSeconds),
+                    name = as.character(.data$Var2),
+                    date = (.data$seconds_since_midnight*1e9)+.data$dateOrigin) |>  
+      dplyr::select(date, .data$seconds_since_midnight, .data$name, .data$value)
     
   }
   
   if(!is.null(averageNanoString)){
     dat = dat |> 
-      dplyr::mutate(date = nanotime::nano_floor(date, nanotime::as.nanoduration(averageNanoString))) |> 
-      dplyr::group_by(date, name) |> 
-      dplyr::summarise_all(mean, na.rm = T) |> 
+      dplyr::mutate(date = nanotime::nano_floor(.data$date, nanotime::as.nanoduration(averageNanoString))) |> 
+      dplyr::group_by(.data$date, .data$name) |> 
+      dplyr::summarise_all(.data$mean, na.rm = T) |> 
       dplyr::ungroup()
   }
   

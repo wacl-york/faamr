@@ -13,12 +13,17 @@ RoxygenNote: 7.3.1
 Imports: 
     cli,
     dplyr,
+    jsonlite,
     lubridate,
     nanotime,
     ncdf4,
     ncmeta,
     purrr,
     reshape2,
+    rlang,
     stringr,
+    tibble,
     tidync,
-    tidyr
+    tidyr,
+    tidyselect,
+    utils
