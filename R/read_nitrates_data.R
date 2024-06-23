@@ -15,16 +15,12 @@
 #' @export
 #'
 
-read_nitrates_data <- function(nitrates_file_list, frequency = 1, verbose = TRUE) {
+read_nitrates_data <- function(nitrates_file_list, frequency = 1) {
   
-  purrr::map_dfr(nitrates_file_list, read_nitrates_worker,
-                 verbose = verbose, frequency = frequency)
+  purrr::map_dfr(nitrates_file_list, read_nitrates_worker, frequency = frequency)
 }
 
-read_nitrates_worker <- function(file, verbose, frequency) {
-  
-  # message
-  if (verbose) message(threadr::date_message(), "`", basename(file), "`...")
+read_nitrates_worker <- function(file, frequency) {
   
   # Connection to ncdf file
   nc <- ncdf4::nc_open(file)

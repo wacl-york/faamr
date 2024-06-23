@@ -4,13 +4,13 @@ Version: 0.0.0.9000
 Authors@R: c(
     person("Freya", "Squires", email = "frees@bas.ac.uk", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-3364-4617")),
-    person("Will", "Drysdale", email = "will.drysdale@york.ac.uk", role = c("aut")),
-           comment = c(ORCID = "0000-0002-7114-7144")),)
+    person("Will", "Drysdale", email = "will.drysdale@york.ac.uk", role = c("aut"),
+           comment = c(ORCID = "0000-0002-7114-7144")))
 Description: Makes FAAM data analysis easier!
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 Imports: 
     dplyr,
     lubridate,
@@ -20,8 +20,5 @@ Imports:
     purrr,
     reshape2,
     stringr,
-    threadr (>= 0.9.234),
     tidync,
     tidyr
-Remotes: 
-    github::skgrange/threadr

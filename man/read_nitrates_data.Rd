@@ -4,7 +4,7 @@
 \alias{read_nitrates_data}
 \title{Read FAAM nitrate files}
 \usage{
-read_nitrates_data(nitrates_file_list, frequency = 1, verbose = TRUE)
+read_nitrates_data(nitrates_file_list, frequency = 1)
 }
 \arguments{
 \item{nitrates_file_list}{List containing file names}
