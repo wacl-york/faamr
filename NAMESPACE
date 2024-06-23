@@ -2,8 +2,11 @@
 
 export(NormalisedMeanBias)
 export(ReadNasaAmes)
+export(check_flight_data)
 export(getCoreDateOrigin)
 export(getWeightOffWheels)
+export(list_flight_data)
+export(list_flights)
 export(quantile25)
 export(read_ADMS_config)
 export(read_faam_core)
