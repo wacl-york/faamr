@@ -12,3 +12,6 @@ file_revision(name)
 \description{
 Gets the file revision number from file name.
 }
+\author{
+W. S. Drysdale
+}

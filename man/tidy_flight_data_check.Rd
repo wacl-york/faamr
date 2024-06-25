@@ -12,3 +12,6 @@ tidy_flight_data_check(flightDataCheck)
 \description{
 Turns the the output of \code{check_flight_data()} into a data.frame
 }
+\author{
+W. S. Drysdale
+}

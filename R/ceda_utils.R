@@ -42,13 +42,14 @@ list_flights = function(force = F){
 #' 
 #' @param flight a character vector of FAAM flight numbers. 
 #' @param verbose Default true, should the available files be detailed in the console. When TRUE the data.frame is returned invisibly
+#' @param force For performance previously queried flights are cached in an environment variable \code{the$ListofFlights}. Set true to force scraping CEDA.
 #' 
 #' @author W. S. Drysdale
 #' 
 #' @export
 
 
-list_flight_data = function(flight, verbose = TRUE){
+list_flight_data = function(flight, verbose = TRUE, force = FALSE){
   
   flight = tolower(flight)
   
@@ -56,7 +57,7 @@ list_flight_data = function(flight, verbose = TRUE){
     dplyr::filter(.data$flightNumber %in% flight)
   
   if(nrow(fl) == 0){
-    stop("No flights found")
+    stop(cli::format_error("No flights found"))
   }
   
   if(nrow(fl) != length(flight)){
@@ -69,7 +70,7 @@ list_flight_data = function(flight, verbose = TRUE){
   
   
   out = purrr::map_df(flight, 
-                      ~faamr::check_flight_data(.x, verbose) |> 
+                      ~faamr::check_flight_data(.x, verbose, force) |> 
                         tidy_flight_data_check() |> 
                         dplyr::mutate(flightNumber = .x)
   )
@@ -95,57 +96,72 @@ list_flight_data = function(flight, verbose = TRUE){
 #' @export
 
 
-check_flight_data = function(flight, verbose = TRUE){
+check_flight_data = function(flight, verbose = TRUE, force = FALSE){
   
-  cli::cli_h1(flight)
-  
-  fl = faamr::list_flights() |> 
-    dplyr::filter(.data$flightNumber %in% flight)
-  
-  flightFolder = jsonlite::fromJSON(paste0(ceda_url(), fl$path,"?json"))$items |> 
-    tibble::as_tibble() 
-  
-  flightDataCheck = list(flightSum = list(name =  "Flight summary",
-                                          pattern = "/flight-sum",
-                                          isDir = FALSE),
-                         coreRaw = list(name = "Core raw",
-                                        pattern = "/core_raw",
-                                        isDir = TRUE),
-                         coreProcessed = list(name = "Core Processed",
-                                              pattern = "/core_processed",
-                                              isDir = TRUE),
-                         nonCore = list(name = "Non-core",
-                                        pattern = "/non-core",
-                                        isDir = TRUE),
-                         moNonCore = list(name = "Met Office Non-core",
-                                        pattern = "/mo-non-core",
-                                        isDir = TRUE)) |> 
-    lapply(function(x){
-      
-      x$check = sum(stringr::str_detect(flightFolder$path,x$pattern)) > 0
-      
-      if(x$check){
+  if(is.null(the$listOfFlights[[flight]]) | force){
+    flight = tolower(flight)
+
+    fl = faamr::list_flights() |> 
+      dplyr::filter(.data$flightNumber %in% flight)
+    
+    flightFolder = jsonlite::fromJSON(paste0(ceda_url(), fl$path,"?json"))$items |> 
+      tibble::as_tibble() 
+    
+    heading = flightFolder |> 
+      dplyr::filter(.data$name == "00README") |> 
+      purrr::pluck("content") |> 
+      stringr::word(1, sep = "\\n") |> 
+      stringr::str_trim()
+    
+    cli::cli_h1(heading)
+    
+    flightDataCheck = list(flightSum = list(name =  "Flight summary",
+                                            pattern = "/flight-sum",
+                                            isDir = FALSE),
+                           coreRaw = list(name = "Core raw",
+                                          pattern = "/core_raw",
+                                          isDir = TRUE),
+                           coreProcessed = list(name = "Core Processed",
+                                                pattern = "/core_processed",
+                                                isDir = TRUE),
+                           nonCore = list(name = "Non-core",
+                                          pattern = "/non-core",
+                                          isDir = TRUE),
+                           moNonCore = list(name = "Met Office Non-core",
+                                            pattern = "/mo-non-core",
+                                            isDir = TRUE)) |> 
+      lapply(function(x){
         
-        if(x$isDir){
-          x$dir = flightFolder$path[stringr::str_detect(flightFolder$path, x$pattern)]
+        x$check = sum(stringr::str_detect(flightFolder$path,x$pattern)) > 0
+        
+        if(x$check){
           
-          x$subFolder = jsonlite::fromJSON(paste0(ceda_url(), x$dir,"?json"))$items |> 
-            tibble::as_tibble() |> 
-            dplyr::mutate(subFolder = x$name)
+          if(x$isDir){
+            x$dir = flightFolder$path[stringr::str_detect(flightFolder$path, x$pattern)]
+            
+            x$subFolder = jsonlite::fromJSON(paste0(ceda_url(), x$dir,"?json"))$items |> 
+              tibble::as_tibble() |> 
+              dplyr::mutate(subFolder = x$name)
+            
+          }else{
+            x$fileName = flightFolder$name[stringr::str_detect(flightFolder$path, x$pattern) & stringr::str_detect(flightFolder$path, ".csv")]
+          }
           
         }
         
-      }
-      
-      x
-      
-    })
+        x
+        
+      })
+    
+    flightDataCheck$flightFolder = flightFolder
+    the$listOfFlights[[flight]] = flightDataCheck
+  }
   
   if(verbose){
-    print_flight_data(flightDataCheck)
-    invisible(flightDataCheck)
+    print_flight_data(the$listOfFlights[[flight]])
+    invisible(the$listOfFlights[[flight]])
   }else{
-    flightDataCheck
+    the$listOfFlights[[flight]]
   }
   
 }
@@ -160,10 +176,18 @@ check_flight_data = function(flight, verbose = TRUE){
 
 print_flight_data = function(flightDataCheck){
   
+  flightDataCheck = flightDataCheck[names(flightDataCheck) != "flightFolder"]
+  
   sink = lapply(flightDataCheck, function(x){
     
     if(x$check){
-      cli::cli_alert_success(x$name)
+      if(x$name == "Flight summary"){
+        cli::cli_alert_success(paste0(x$name, 
+                                      cli::col_grey(paste0(" - ", x$fileName))))
+      }else{
+        cli::cli_alert_success(x$name)
+      }
+      
       if(x$isDir){
         
         cli::cli_ul()
@@ -200,12 +224,15 @@ print_flight_data = function(flightDataCheck){
 #' Turns the the output of \code{check_flight_data()} into a data.frame
 #' 
 #' @param flightDataCheck output of \code{check_flight_data()}
+#' 
+#' @author W. S. Drysdale
 
 tidy_flight_data_check = function(flightDataCheck){
   purrr::map_df(names(flightDataCheck), 
                 ~purrr::pluck(flightDataCheck,.x,"subFolder")) |> 
-    dplyr::select(.data$path, .data$name, .data$type, .data$subFolder) |> 
-    filter_revision() 
+    dplyr::bind_rows(flightDataCheck$flightFolder) |> 
+    dplyr::select(tidyselect::all_of(c("path", "name", "type", "subFolder","ext"))) |> 
+    filter_revision()
 }
 
 
@@ -222,6 +249,8 @@ ceda_url = function(){
 #' Gets the file revision number from file name.
 #' 
 #' @param name file name to extract revision from
+#' 
+#' @author W. S. Drysdale
 
 file_revision = function(name){
   
@@ -237,6 +266,8 @@ file_revision = function(name){
 #' given a flight folder data.frame, return the only the most recently revised versions of each file
 #' 
 #' @param folder tibble representing the folder on CEDA
+#' 
+#' @author W. S. Drysdale
 
 filter_revision = function(folder){
   
@@ -246,6 +277,39 @@ filter_revision = function(folder){
                   nameNoR = stringr::str_remove(.data$name, stringr::regex("_r([0-9])_")),
                   nameNoR = ifelse(is.na(.data$nameNoR), .data$name, .data$nameNoR)) |> 
     dplyr::group_by(.data$nameNoR) |> 
-    dplyr::filter(.data$r == max(.data$r))
+    dplyr::filter(.data$r == max(.data$r)) |> 
+    dplyr::ungroup() |> 
+    dplyr::select(-.data$nameNoR)
   
+}
+
+#' Assign file Type
+#' 
+#' Assigns known file types from \code{file_lookup()} to files listed in a flight folder
+#' such as that returned by \code{tidy_flight_data_check()}.
+#' 
+#' @param flightFolder data.frame describing a flight folder such as that returned by \code{tidy_flight_data_check()}.
+#' @param lookup defaults to the internal list of files described by \code{faam_file_lookup()}, but an edited 
+#' table can be provided if the user wishes
+#' 
+#' @export
+#' 
+#' @author W. S. Drysdale
+
+assign_file_type = function(flightFolder, lookup = NULL){
+  
+  if(is.null(lookup)){
+    lookup = faam_file_lookup()
+  }
+  
+  flightFolder$fileType = purrr::map_chr(flightFolder$name, ~{
+    y = lookup$fileType[stringr::str_detect(.x, lookup$fileRegex)]
+    if(length(y) == 0){
+      NA
+    }else{
+      y
+    }
+  })
+  
+  flightFolder
 }

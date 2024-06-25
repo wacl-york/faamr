@@ -4,12 +4,14 @@
 \alias{check_flight_data}
 \title{Check Flight Data}
 \usage{
-check_flight_data(flight, verbose = TRUE)
+check_flight_data(flight, verbose = TRUE, force = FALSE)
 }
 \arguments{
 \item{flight}{a character vector of FAAM flight numbers.}
 
 \item{verbose}{Default true, should the available files be detailed in the console. When TRUE the data.frame is returned invisibly}
+
+\item{force}{For performance previously queried flights are cached in an environment variable \code{the$ListofFlights}. Set true to force scraping CEDA.}
 }
 \description{
 Performs the actual checking for \code{list_flight_data()} - Which is probably the function most will want to use when working interactively. 

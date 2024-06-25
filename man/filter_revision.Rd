@@ -12,3 +12,6 @@ filter_revision(folder)
 \description{
 given a flight folder data.frame, return the only the most recently revised versions of each file
 }
+\author{
+W. S. Drysdale
+}

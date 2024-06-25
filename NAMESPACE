@@ -2,7 +2,9 @@
 
 export(NormalisedMeanBias)
 export(ReadNasaAmes)
+export(assign_file_type)
 export(check_flight_data)
+export(faam_file_lookup)
 export(getCoreDateOrigin)
 export(getWeightOffWheels)
 export(list_flight_data)

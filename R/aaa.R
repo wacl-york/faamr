@@ -3,3 +3,4 @@
 the = new.env(parent = emptyenv())
 
 the$flightList = NULL
+the$listOfFlights = list()
