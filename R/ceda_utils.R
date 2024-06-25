@@ -345,7 +345,7 @@ summarise_by_extension = function(flightFolder){
     dplyr::filter(.data$type != "file" | .data$ext == ".pdf")
   
   flightFolder = flightFolder |> 
-    dplyr::filter(.data$type == "file" & ext != ".pdf") |> 
+    dplyr::filter(.data$type == "file" & .data$ext != ".pdf") |> 
     dplyr::rowwise() |> 
     dplyr::mutate(
       nameNoExt = ifelse(is.na(.data$ext) | .data$ext == "", .data$name, stringr::str_remove(.data$name, .data$ext)),
@@ -373,6 +373,17 @@ summarise_by_extension = function(flightFolder){
 
 #' Flight Download
 #'
+#' Downloads flight files from CEDA
+#' 
+#' @param flight vector of FAAM flight numbers
+#' @param files 'fileType' names of files to be downloaded. These are shown in list_flight_data
+#' @param dirOut directory to save files to. Subdirectories of flight data will be made here. 
+#' @param user CEDA username
+#' @param pass CEDA password
+#' 
+#' @author W. S. Drysdale
+#' 
+#' @export
 
 flight_download = function(flight, files, dirOut, user, pass){
   
