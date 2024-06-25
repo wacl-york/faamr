@@ -370,3 +370,46 @@ summarise_by_extension = function(flightFolder){
     dplyr::select(tidyselect::all_of(c("name", "ext", "type", "fileType")))
   
 }
+
+#' Flight Download
+#'
+
+flight_download = function(flight, files, dirOut, user, pass){
+  
+  flightFolder = list_flight_data(flight, verbose = F) |> 
+    dplyr::filter(.data$fileType %in% files)
+  
+  if(!dir.exists(dirOut)){
+    stop(cli::format_error("dirOut does not exist"))
+  }
+  
+  for(f in flight){
+    if(!dir.exists(file.path(dirOut,f))){
+      dir.create(file.path(dirOut,f))
+    }
+  }
+  
+  flightFolder$fileOut = file.path(dirOut, flightFolder$flightNumber, flightFolder$name)
+  flightFolder$req_url = paste0(ceda_ftp(), flightFolder$path)
+  
+  for(i in 1:nrow(flightFolder)){
+    req = httr2::request(flightFolder$req_url[i]) |> 
+      httr2::req_options(
+        httpauth = 1,
+        userpwd = paste0(user,":",pass)
+      ) |> 
+      httr2::req_progress(type = "down")
+    
+    cli::cli_alert(paste0("Downloading: ", flightFolder$name[i]))
+    
+    temp = httr2::req_perform(req)
+    
+    if(flightFolder$ext[i] %in% c(".zip",".nc",".pdf")){
+      writeBin(httr2::resp_body_raw(temp), flightFolder$fileOut[i])
+    }else{
+      writeLines(httr2::resp_body_string(temp), flightFolder$fileOut[i])
+    }
+    
+  }
+  
+}
