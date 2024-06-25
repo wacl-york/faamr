@@ -72,6 +72,7 @@ list_flight_data = function(flight, verbose = TRUE, force = FALSE){
   out = purrr::map_df(flight, 
                       ~faamr::check_flight_data(.x, verbose, force) |> 
                         tidy_flight_data_check() |> 
+                        assign_file_type() |> 
                         dplyr::mutate(flightNumber = .x)
   )
   
@@ -106,14 +107,6 @@ check_flight_data = function(flight, verbose = TRUE, force = FALSE){
     
     flightFolder = jsonlite::fromJSON(paste0(ceda_url(), fl$path,"?json"))$items |> 
       tibble::as_tibble() 
-    
-    heading = flightFolder |> 
-      dplyr::filter(.data$name == "00README") |> 
-      purrr::pluck("content") |> 
-      stringr::word(1, sep = "\\n") |> 
-      stringr::str_trim()
-    
-    cli::cli_h1(heading)
     
     flightDataCheck = list(flightSum = list(name =  "Flight summary",
                                             pattern = "/flight-sum",
@@ -154,6 +147,15 @@ check_flight_data = function(flight, verbose = TRUE, force = FALSE){
       })
     
     flightDataCheck$flightFolder = flightFolder
+    
+    heading = flightFolder |> 
+      dplyr::filter(.data$name == "00README") |> 
+      purrr::pluck("content") |> 
+      stringr::word(1, sep = "\\n") |> 
+      stringr::str_trim()
+    
+    flightDataCheck$heading = heading
+    
     the$listOfFlights[[flight]] = flightDataCheck
   }
   
@@ -177,6 +179,8 @@ check_flight_data = function(flight, verbose = TRUE, force = FALSE){
 print_flight_data = function(flightDataCheck){
   
   flightDataCheck = flightDataCheck[names(flightDataCheck) != "flightFolder"]
+  cli::cli_h1(flightDataCheck$heading)
+  flightDataCheck$heading = NULL
   
   sink = lapply(flightDataCheck, function(x){
     
