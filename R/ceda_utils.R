@@ -248,6 +248,13 @@ ceda_url = function(){
   "https://data.ceda.ac.uk"
 }
 
+#' CEDA URL
+#' Returns the root URL for the CEDA FTP service
+#' 
+ceda_ftp = function(){
+  "ftp://ftp.ceda.ac.uk"
+}
+
 #' File Revision
 #' 
 #' Gets the file revision number from file name.
