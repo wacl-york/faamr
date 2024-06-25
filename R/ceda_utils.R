@@ -70,7 +70,7 @@ list_flight_data = function(flight, verbose = TRUE, force = FALSE){
   
   
   out = purrr::map_df(flight, 
-                      ~faamr::check_flight_data(.x, verbose, force) |> 
+                      ~check_flight_data(.x, verbose, force) |> 
                         tidy_flight_data_check() |> 
                         assign_file_type() |> 
                         dplyr::mutate(flightNumber = .x)
@@ -101,28 +101,27 @@ check_flight_data = function(flight, verbose = TRUE, force = FALSE){
   
   if(is.null(the$listOfFlights[[flight]]) | force){
     flight = tolower(flight)
-
+    
     fl = faamr::list_flights() |> 
       dplyr::filter(.data$flightNumber %in% flight)
     
     flightFolder = jsonlite::fromJSON(paste0(ceda_url(), fl$path,"?json"))$items |> 
       tibble::as_tibble() 
     
-    flightDataCheck = list(flightSum = list(name =  "Flight summary",
-                                            pattern = "/flight-sum",
-                                            isDir = FALSE),
-                           coreRaw = list(name = "Core raw",
-                                          pattern = "/core_raw",
-                                          isDir = TRUE),
-                           coreProcessed = list(name = "Core Processed",
-                                                pattern = "/core_processed",
-                                                isDir = TRUE),
-                           nonCore = list(name = "Non-core",
-                                          pattern = "/non-core",
-                                          isDir = TRUE),
-                           moNonCore = list(name = "Met Office Non-core",
-                                            pattern = "/mo-non-core",
-                                            isDir = TRUE)) |> 
+    flightDataCheck = list(
+      moNonCore = list(name = "Met Office Non-core",
+                       pattern = "/mo-non-core",
+                       isDir = TRUE),
+      nonCore = list(name = "Non-core",
+                     pattern = "/non-core",
+                     isDir = TRUE),
+      coreProcessed = list(name = "Core Processed",
+                           pattern = "/core_processed",
+                           isDir = TRUE),
+      coreRaw = list(name = "Core raw",
+                     pattern = "/core_raw",
+                     isDir = TRUE)
+    ) |> 
       lapply(function(x){
         
         x$check = sum(stringr::str_detect(flightFolder$path,x$pattern)) > 0
@@ -146,7 +145,13 @@ check_flight_data = function(flight, verbose = TRUE, force = FALSE){
         
       })
     
-    flightDataCheck$flightFolder = flightFolder
+    flightDataCheck$flightFolder = list(name = "Flight Folder",
+                                        isDir = TRUE, 
+                                        subFolder = flightFolder,
+                                        check = TRUE
+    )
+    
+    flightDataCheck = rev(flightDataCheck)
     
     heading = flightFolder |> 
       dplyr::filter(.data$name == "00README") |> 
@@ -154,7 +159,7 @@ check_flight_data = function(flight, verbose = TRUE, force = FALSE){
       stringr::word(1, sep = "\\n") |> 
       stringr::str_trim()
     
-    flightDataCheck$heading = heading
+    flightDataCheck$flightFolder$heading = heading
     
     the$listOfFlights[[flight]] = flightDataCheck
   }
@@ -178,41 +183,43 @@ check_flight_data = function(flight, verbose = TRUE, force = FALSE){
 
 print_flight_data = function(flightDataCheck){
   
-  flightDataCheck = flightDataCheck[names(flightDataCheck) != "flightFolder"]
-  cli::cli_h1(flightDataCheck$heading)
-  flightDataCheck$heading = NULL
+  cli::cli_h1(flightDataCheck$flightFolder$heading)
+  
   
   sink = lapply(flightDataCheck, function(x){
-    
     if(x$check){
-      if(x$name == "Flight summary"){
-        cli::cli_alert_success(paste0(x$name, 
-                                      cli::col_grey(paste0(" - ", x$fileName))))
+      if(x$name == "Flight Folder"){
+        cli::cli_alert("Flight Folder")
       }else{
         cli::cli_alert_success(x$name)
       }
       
       if(x$isDir){
-        
         cli::cli_ul()
         
         subFolder = x$subFolder |> 
-          filter_revision()
-        
+          filter_revision() |>
+          assign_file_type() |> 
+          summarise_by_extension()
         
         split(subFolder, 1:nrow(subFolder)) |> 
           lapply(function(y){
             
             switch(y$type, 
-                   file = cli::cli_ul(paste(cli::col_green("file:"),y$name)),
+                   file = {if(is.na(y$fileType)){
+                     cli::cli_ul(paste(cli::col_green("file:"),y$name))
+                   }else{
+                     cli::cli_ul(paste(cli::col_green("file:"),y$name, 
+                                       cli::col_grey(paste0(" - ", y$fileType))))
+                   }},
                    dir = cli::cli_ul(paste(cli::col_yellow("dir:"),y$name)),
                    link = cli::cli_ul(paste(cli::col_blue("link:"),y$name)),
                    cli::cli_ul(paste(cli::col_grey("other:"),y$name))
             )
-            
+                       
           })
-        
-        cli::cli_end()
+            
+            cli::cli_end()
       }
       
     }else{
@@ -220,7 +227,7 @@ print_flight_data = function(flightDataCheck){
     }
     
   })
-  
+        
 }
 
 #' Tidy Flight Data Check
@@ -234,7 +241,6 @@ print_flight_data = function(flightDataCheck){
 tidy_flight_data_check = function(flightDataCheck){
   purrr::map_df(names(flightDataCheck), 
                 ~purrr::pluck(flightDataCheck,.x,"subFolder")) |> 
-    dplyr::bind_rows(flightDataCheck$flightFolder) |> 
     dplyr::select(tidyselect::all_of(c("path", "name", "type", "subFolder","ext"))) |> 
     filter_revision()
 }
@@ -323,4 +329,44 @@ assign_file_type = function(flightFolder, lookup = NULL){
   })
   
   flightFolder
+}
+
+#' Summarise Flight Folder by extension
+#' 
+#' Sometimes the same file is listed several times as different types. This
+#' groups those files and presents their exentsions comma separated after their 
+#' name. USed for tidy printing in print_flight_data
+#' 
+#' @param flightFolder a subFolder in the flightDataCheck list
+
+summarise_by_extension = function(flightFolder){
+  
+  flightFolderNotFiles = flightFolder |> 
+    dplyr::filter(.data$type != "file" | .data$ext == ".pdf")
+  
+  flightFolder = flightFolder |> 
+    dplyr::filter(.data$type == "file" & ext != ".pdf") |> 
+    dplyr::rowwise() |> 
+    dplyr::mutate(
+      nameNoExt = ifelse(is.na(.data$ext) | .data$ext == "", .data$name, stringr::str_remove(.data$name, .data$ext)),
+      fileTypeNoExt = ifelse(is.na(.data$ext) | .data$ext == "", .data$fileType, stringr::str_remove(.data$fileType, .data$ext))
+    ) |> 
+    dplyr::ungroup() |> 
+    dplyr::mutate(dupes = .data$nameNoExt %in% .data$nameNoExt[duplicated(.data$nameNoExt)])
+  
+  flightFolderDupes = flightFolder |> 
+    dplyr::filter(.data$dupes) |> 
+    dplyr::group_by(.data$nameNoExt, .data$fileTypeNoExt) |> 
+    dplyr::summarise(extList = paste(.data$ext, collapse = ", "),.groups = "drop")
+  
+  flightFolder |> 
+    dplyr::filter(!.data$dupes) |> 
+    dplyr::bind_rows(flightFolderDupes) |> 
+    dplyr::mutate(ext = ifelse(is.na(.data$ext), .data$extList, .data$ext),
+                  name = paste0(.data$nameNoExt,.data$ext),
+                  fileType = paste0(.data$fileTypeNoExt,.data$ext),
+                  type = "file") |> 
+    dplyr::bind_rows(flightFolderNotFiles) |> 
+    dplyr::select(tidyselect::all_of(c("name", "ext", "type", "fileType")))
+  
 }

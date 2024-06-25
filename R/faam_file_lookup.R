@@ -10,7 +10,7 @@ faam_file_lookup = function(){
     ~fileType, ~fileRegex, ~readFunction,
     "core.nc",                     "core_faam(.?.{22}).nc",                        "read_faam_core",
     "core_1hz.nc",                 "core_faam(.*?)1hz.nc",                         "read_faam_core",
-    "corerawdlu.zip",              "core_faam(.*?)rawdlu.zip",                     NA,
+    "core_rawdlu.zip",              "core_faam(.*?)rawdlu.zip",                     NA,
     "core-cloud-phy.nc",           "core-cloud-phy_faam(.?.{22}).nc",              NA,
     "core-cloud-phy_cip100.nc",    "core-cloud-phy_faam(.*?)cip100.nc",            NA, 
     "core-cloud-phy_cip15.nc",     "core-cloud-phy_faam(.*?)cip15.nc" ,            NA,
