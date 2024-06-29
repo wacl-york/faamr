@@ -18,7 +18,7 @@ read_faam_nitrates = function(
   dat_meta = ncmeta::nc_meta(filepath)
   
   # get the date origin (midnight on date of flight)
-  dateOrigin = get_core_date_origin(filepath)
+  dateOrigin = get_core_date_origin(filepath, timeName = "time")
     
   dat_nc = tidync::tidync(filepath)
     
