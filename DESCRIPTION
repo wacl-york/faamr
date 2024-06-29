@@ -11,6 +11,7 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 7.3.1
 Imports: 
+    abind,
     cli,
     dplyr,
     httr2,

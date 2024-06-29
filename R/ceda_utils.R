@@ -102,7 +102,7 @@ check_flight_data = function(flight, verbose = TRUE, force = FALSE){
   if(is.null(the$listOfFlights[[flight]]) | force){
     flight = tolower(flight)
     
-    fl = faamr::list_flights() |> 
+    fl = list_flights() |> 
       dplyr::filter(.data$flightNumber %in% flight)
     
     flightFolder = jsonlite::fromJSON(paste0(ceda_url(), fl$path,"?json"))$items |> 

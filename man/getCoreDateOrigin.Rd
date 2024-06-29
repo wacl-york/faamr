@@ -4,10 +4,12 @@
 \alias{getCoreDateOrigin}
 \title{Get Core Date Origin}
 \usage{
-getCoreDateOrigin(filepath)
+getCoreDateOrigin(filepath, timeName = "Time")
 }
 \arguments{
 \item{filepath}{path to file}
+
+\item{timeName}{default "Time" - what is the time column called in the core netcdf we are trying to get the date from? e.g in nitrates its "time"}
 }
 \description{
 Given a path to a core ncdf file, returns the first timestamp as a nanotime

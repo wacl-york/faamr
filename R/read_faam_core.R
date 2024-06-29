@@ -3,13 +3,13 @@
 #' Reads either the high time resolution or 1 Hz faam core files
 #' 
 #' @param filepath path to file
-#' @param startDate string that can be cohered to a nanotime via: \code{nanotime::nanotime(startDate, format = "seconds since \%Y-\%m-\%d \%H:\%M:\%S \%z")}
+#' @param startDate string that can be coerced to a nanotime via: \code{nanotime::nanotime(startDate,format = "\%Y-\%m-\%d \%H:\%M:\%S")}
 #'                  used to filter \code{tidync::hyper_array()}
-#' @param endDate string that can be cohered to a nanotime via: \code{nanotime::nanotime(endDate, format = "seconds since \%Y-\%m-\%d \%H:\%M:\%S \%z")}
+#' @param endDate string that can be coerced to a nanotime via: \code{nanotime::nanotime(endDate,format = "\%Y-\%m-\%d \%H:\%M:\%S")}
 #'                used to filter \code{tidync::hyper_array()}
 #' @param selectVar vector of varibale names to load - loading all of them can take a long time!
 #' @param sps samples per second - one of 2, 4, 32, 64. default 32
-#' @param averageNanoString string to pass to \code{nanotime::nano_floor(date, nanotime::as.nanoduration(averageNanoString)))} for resampling date
+#' @param averageNanoString string to pass to \code{nanotime::nano_floor(date, nanotime::as.nanoduration(averageNanoString))} for resampling date
 #' 
 #' @author W. S. Drysdale
 #' 
@@ -69,10 +69,10 @@ read_faam_core = function(filepath,
       dplyr::mutate(subsecond = as.integer(.data$Var1),
                     subsecond = .data$subsecond/max(.data$subsecond),
                     subsecond = .data$subsecond-min(.data$subsecond),
-                    seconds_since_midnight = as.integer(.data$Var2)+.data$subsecond-1+.data$startSeconds,
+                    seconds_since_midnight = as.integer(.data$Var2) + .data$subsecond-1 + startSeconds,
                     name = as.character(.data$Var3),
-                    date = (.data$seconds_since_midnight*1e9)+.data$dateOrigin) |> 
-      dplyr::select(.data$date, .data$seconds_since_midnight, .data$name, .data$value)
+                    date = (.data$seconds_since_midnight*1e9) + dateOrigin) |> 
+      dplyr::select(tidyselect::all_of(c("date", "seconds_since_midnight", "name", "value")))
     
   }else{ # for the 1 hz file
     
@@ -85,10 +85,10 @@ read_faam_core = function(filepath,
       as.data.frame.table(responseName = "value",
                           stringsAsFactors = TRUE) |> 
       dplyr::tibble() |> 
-      dplyr::mutate(seconds_since_midnight = (as.integer(.data$Var1)-1+.data$startSeconds),
+      dplyr::mutate(seconds_since_midnight = (as.integer(.data$Var1)-1 + startSeconds),
                     name = as.character(.data$Var2),
-                    date = (.data$seconds_since_midnight*1e9)+.data$dateOrigin) |>  
-      dplyr::select(date, .data$seconds_since_midnight, .data$name, .data$value)
+                    date = (.data$seconds_since_midnight*1e9) + dateOrigin) |>  
+      dplyr::select(tidyselect::all_of(c("date", "seconds_since_midnight", "name", "value")))
     
   }
   
@@ -96,7 +96,7 @@ read_faam_core = function(filepath,
     dat = dat |> 
       dplyr::mutate(date = nanotime::nano_floor(.data$date, nanotime::as.nanoduration(averageNanoString))) |> 
       dplyr::group_by(.data$date, .data$name) |> 
-      dplyr::summarise_all(.data$mean, na.rm = T) |> 
+      dplyr::summarise_all(mean, na.rm = T) |> 
       dplyr::ungroup()
   }
   
