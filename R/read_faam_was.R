@@ -19,7 +19,7 @@ read_faam_was <- function(was_file_list) {
                    file <- file
                    
                    #get header names, file date and missing flag information
-                   meta <- ReadNasaAmes(file)
+                   meta <- read_nasa_ames_header(file)
                    
                    #get flight number from file name - NOTE this may change for different age of files
                    flight_no <- stringr::str_sub(basename(file), start = 34, end = 37)  |> 

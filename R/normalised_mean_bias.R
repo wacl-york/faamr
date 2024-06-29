@@ -13,7 +13,7 @@
 #'
 #' @export
 
-NormalisedMeanBias <- function(modelled, observations, na.rm){
+normalised_mean_bias <- function(modelled, observations, na.rm){
 
   mod <- modelled
   obs <- observations

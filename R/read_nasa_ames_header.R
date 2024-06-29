@@ -5,7 +5,6 @@
 #' Returns a list of header length, flags, file date and column names for use with other
 #' file readers.
 #'
-#' @name ReadNasaAmes
 #' @param file  NASA Ames file
 #'
 #' @return List of header length, flags, date and column names
@@ -13,7 +12,7 @@
 #'
 #' @export
 
-ReadNasaAmes <- function(file){
+read_nasa_ames_header <- function(file){
 
   # return the header length
   hl <- readLines(file, n = 1) |> 

@@ -27,7 +27,7 @@ read_faam_core = function(filepath,
   dat_meta = ncmeta::nc_meta(filepath)
   
   # get the date origin (midnight on date of flight)
-  dateOrigin = getCoreDateOrigin(filepath)
+  dateOrigin = get_core_date_origin(filepath)
   
   dat_nc = tidync::tidync(filepath)
   
