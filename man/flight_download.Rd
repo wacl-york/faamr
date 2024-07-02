@@ -4,18 +4,19 @@
 \alias{flight_download}
 \title{Flight Download}
 \usage{
-flight_download(flight, files, dirOut, user, pass)
+flight_download(flight, user, pass, dirOut, files = NULL)
 }
 \arguments{
 \item{flight}{vector of FAAM flight numbers}
 
-\item{files}{'fileType' names of files to be downloaded. These are shown in list_flight_data}
-
-\item{dirOut}{directory to save files to. Subdirectories of flight data will be made here.}
-
 \item{user}{CEDA username}
 
 \item{pass}{CEDA password}
+
+\item{dirOut}{directory to save files to. Subdirectories of flight data will be made here.}
+
+\item{files}{'fileType' names of files to be downloaded. These are shown in list_flight_data. 
+If no files are supplied `flight_download()` gets all files in the flight directory and those in Core Processed and Non-core}
 }
 \description{
 Downloads flight files from CEDA

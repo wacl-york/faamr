@@ -216,10 +216,10 @@ print_flight_data = function(flightDataCheck){
                    link = cli::cli_ul(paste(cli::col_blue("link:"),y$name)),
                    cli::cli_ul(paste(cli::col_grey("other:"),y$name))
             )
-                       
-          })
             
-            cli::cli_end()
+          })
+        
+        cli::cli_end()
       }
       
     }else{
@@ -227,7 +227,7 @@ print_flight_data = function(flightDataCheck){
     }
     
   })
-        
+  
 }
 
 #' Tidy Flight Data Check
@@ -376,31 +376,66 @@ summarise_by_extension = function(flightFolder){
 #' Downloads flight files from CEDA
 #' 
 #' @param flight vector of FAAM flight numbers
-#' @param files 'fileType' names of files to be downloaded. These are shown in list_flight_data
-#' @param dirOut directory to save files to. Subdirectories of flight data will be made here. 
 #' @param user CEDA username
 #' @param pass CEDA password
+#' @param dirOut directory to save files to. Subdirectories of flight data will be made here. 
+#' @param files 'fileType' names of files to be downloaded. These are shown in list_flight_data. 
+#' If no files are supplied `flight_download()` gets all files in the flight directory and those in Core Processed and Non-core
 #' 
 #' @author W. S. Drysdale
 #' 
 #' @export
 
-flight_download = function(flight, files, dirOut, user, pass){
+flight_download = function(flight, user, pass, dirOut, files = NULL){
   
-  flightFolder = list_flight_data(flight, verbose = F) |> 
-    dplyr::filter(.data$fileType %in% files)
+  if(is.null(files)){
+    flightFolder = list_flight_data(flight, verbose = F) |> 
+      dplyr::filter(.data$type == "file",
+                    is.na(.data$subFolder) | .data$subFolder %in% c("Core Processed", "Non-core"),
+                    !.data$ext %in% c("", ".zip")) 
+    
+  }else{
+    flightFolder = list_flight_data(flight, verbose = F) |> 
+      dplyr::filter(.data$fileType %in% files)
+  }
+  
+  flightFolder = flightFolder |> 
+    dplyr::mutate(
+      fileOut = ifelse(is.na(.data$subFolder),
+                       file.path(dirOut,
+                                 .data$flightNumber,
+                                 .data$name),
+                       file.path(dirOut,
+                                 .data$flightNumber,
+                                 .data$subFolder,
+                                 .data$name)
+      )
+    )
+  
   
   if(!dir.exists(dirOut)){
     stop(cli::format_error("dirOut does not exist"))
   }
   
-  for(f in flight){
-    if(!dir.exists(file.path(dirOut,f))){
-      dir.create(file.path(dirOut,f))
-    }
-  }
+  folders = flightFolder |> 
+    dplyr::select(tidyselect::all_of(c("subFolder","flightNumber"))) |> 
+    dplyr::distinct()
   
-  flightFolder$fileOut = file.path(dirOut, flightFolder$flightNumber, flightFolder$name)
+  for(i in 1:nrow(folders)){
+    f = folders[i,]
+    
+    if(is.na(f$subFolder)){
+      if(!dir.exists(file.path(dirOut,f$flightNumber))){
+        dir.create(file.path(dirOut,f$flightNumber))
+      }
+    }else{
+      if(!dir.exists(file.path(dirOut,f$flightNumber, f$subFolder))){
+        dir.create(file.path(dirOut,f$flightNumber, f$subFolder), recursive = T)
+      }
+    }
+    
+  }
+
   flightFolder$req_url = paste0(ceda_ftp(), flightFolder$path)
   
   for(i in 1:nrow(flightFolder)){
