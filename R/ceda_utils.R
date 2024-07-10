@@ -110,16 +110,16 @@ check_flight_data = function(flight, verbose = TRUE, force = FALSE){
     
     flightDataCheck = list(
       moNonCore = list(name = "Met Office Non-core",
-                       pattern = "/mo-non-core",
+                       pattern = "/mo-non-core$",
                        isDir = TRUE),
       nonCore = list(name = "Non-core",
-                     pattern = "/non-core",
+                     pattern = "/non-core$",
                      isDir = TRUE),
       coreProcessed = list(name = "Core Processed",
-                           pattern = "/core_processed",
+                           pattern = "/core_processed$",
                            isDir = TRUE),
       coreRaw = list(name = "Core raw",
-                     pattern = "/core_raw",
+                     pattern = "/core_raw$",
                      isDir = TRUE)
     ) |> 
       lapply(function(x){
