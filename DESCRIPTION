@@ -10,11 +10,13 @@ Description: Makes FAAM data analysis easier!
 License: MIT + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 7.3.2
+Depends:
+    R (>= 4.0)
 Imports: 
     abind,
     cli,
     dplyr,
-    httr2,
+    httr2 (>= 1.0.0),
     jsonlite,
     lubridate,
     nanotime,
