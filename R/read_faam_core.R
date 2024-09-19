@@ -39,7 +39,7 @@ read_faam_core = function(filepath,
     endSeconds = as.numeric(endNano-dateOrigin)/1e9
     
     dat_nc = tidync::hyper_filter(dat_nc, 
-                                  Time = dplyr::between(.data$Time, .data$startSeconds, .data$endSeconds))
+                                  Time = dplyr::between(.data$Time, startSeconds, endSeconds))
   }else{
     
     # set start seconds to the begining of the file so we can add use it in the timestamp, even if we arent filtering
