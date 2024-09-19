@@ -17,8 +17,8 @@ get_weight_off_wheels = function(filepath){
   dateOrigin = get_core_date_origin(filepath)
   
   dat = tidync::hyper_tibble(dat_nc, "WOW_IND") |> 
-    dplyr::mutate(date = (.data$Time*1e9)+.data$dateOrigin) |> 
-    dplyr::select(.data$date, .data$WOW_IND) |> 
+    dplyr::mutate(date = (.data$Time*1e9)+dateOrigin) |> 
+    dplyr::select("date", "WOW_IND") |> 
     dplyr::filter(.data$WOW_IND == 0)
   
   dat
