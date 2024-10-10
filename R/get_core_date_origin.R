@@ -17,7 +17,7 @@ get_core_date_origin = function(filepath, timeName = "Time"){
   dateOrigin = dat_meta$attribute |> 
     dplyr::filter(.data$variable == timeName,
                   .data$name == "units") |> 
-    tidyr::unnest(.data$value) |> 
+    tidyr::unnest("value") |> 
     purrr::pluck("value") |> 
     nanotime::nanotime(format = "seconds since %Y-%m-%d %H:%M:%S %z")
   
