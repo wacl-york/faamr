@@ -399,6 +399,15 @@ flight_download = function(flight, user, pass, dirOut, files = NULL){
       dplyr::filter(.data$fileType %in% files)
   }
   
+  if(nrow(flightFolder) == 0){
+    if(is.null(files)){
+      stop(cli::format_error("no files found"))
+    }else{
+      flight_error = ifelse(length(flight) == 1, paste0('"',flight,'"'), paste0('c("', paste0(flight, collapse = '", "'), '")'))
+      stop(cli::format_error(paste0('no files found - did you specify files by their fileType? check `faamr::list_flight_data(',flight_error,', verbose = FALSE)`')))
+    }
+  }
+  
   flightFolder = flightFolder |> 
     dplyr::mutate(
       fileOut = ifelse(is.na(.data$subFolder),
