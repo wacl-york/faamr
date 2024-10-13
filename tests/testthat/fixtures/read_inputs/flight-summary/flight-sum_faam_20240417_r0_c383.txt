@@ -1,0 +1,31 @@
+FLIGHT SUMMARY
+Flight No c383
+Date: 17/04/2024
+Project: TEST
+Location:
+
+Start   End
+Time    Time     Event               Height (s)        Hdg Comments
+----    ----     -----               ----------        --- --------
+115108           ASPs open           0.28 kft          155
+115253           Start Up            0.29 kft          155
+115255           Engine Start        0.28 kft          155
+115532           Power               0.28 kft          155 Changeover (E->I)
+115621           Chocks Away         0.28 kft          155
+115857           Taxy                0.29 kft          155
+121214           Takeoff             0.27 kft           31 "EGTC"
+122502  122709   Run 1               13.01 - 13.08 kft 335
+122709  124036   Profile 1           13.08 - 16.00 kft 336 "FL160"
+124807  130318   Profile 2           16.00 - 23.00 kft 126 "FL230"
+131006  132843   Profile 3           23.07 - 25.99 kft 332
+134015  134852   Profile 4           26.00 - 28.00 kft 147
+134950  140316   Profile 5           27.98 - 5.00 kft  151
+142711  143413   Profile 6           1.55 - 12.94 kft  231
+144127  145914   Profile 7           13.07 - 16.00 kft 337
+150444  151924   Profile 8           16.12 - 23.01 kft 132
+154411           Landing             0.30 kft           23
+154833           On Chocks           0.32 kft          335
+154911           ASPs closed         0.32 kft          335
+154924           Power               0.32 kft          335 Changeover (I->E)
+154953           Shutdown            0.32 kft          335
+
