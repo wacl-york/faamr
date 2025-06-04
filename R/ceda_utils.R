@@ -254,11 +254,67 @@ ceda_url = function(){
   "https://data.ceda.ac.uk"
 }
 
-#' CEDA URL
-#' Returns the root URL for the CEDA FTP service
+#' CEDA URL openDAP
+#' Returns the root URL for the CEDA openDAP service
 #' 
-ceda_ftp = function(){
-  "ftp://ftp.ceda.ac.uk"
+ceda_url_dap = function(){
+  "https://dap.ceda.ac.uk"
+}
+
+#' CEDA URL Token 
+#' 
+#' returns the URL for refreshing CEDA acccess tokens
+
+ceda_url_token = function(){
+  "https://services-beta.ceda.ac.uk/api/token/create/"
+}
+
+#' CEDA Access Token
+#' 
+#' Return an exiting access token, or generate a fresh one
+#' Tokens are stored in the local environment, along with their expiry datetime
+#' If a token expires within an hour, or cannot be found, a new one is requested
+#' from the \code{ceda_url_token()} using the username and password provided
+#' 
+#' @param user CEDA username
+#' @param pass CEDA password
+
+ceda_token = function(user, pass){
+  
+  system_time_utc_plus_1_hour = lubridate::with_tz(Sys.time(), "UTC")+3600
+  
+  # if access token exists
+  if(!is.null(the$access_token)){
+    # and if access token has not expired, or does not expire in the next hour
+    if(the$access_token_expires > system_time_utc_plus_1_hour) 
+      return(the$access_token)
+  }
+  
+  # if token has expired or doesn't exist
+  
+  req = httr2::request(ceda_url_token()) |> 
+    httr2::req_method("POST") |> 
+    httr2::req_auth_basic(
+      user = user,
+      password = pass
+    )
+  
+  resp = httr2::req_perform(req)
+  
+  if(resp$status_code != 200){
+    stop(print("Token request returned status ", resp$status_code))
+  }
+  
+  token = resp$body |> 
+    rawToChar() |> 
+    jsonlite::parse_json()
+  
+  the$access_token = token$access_token
+  the$access_token_expires = as.POSIXct(token$expires, format = "%Y-%m-%dT%H:%M:%OSZ", tz = "UTC")
+  
+  # Return
+  the$access_token
+  
 }
 
 #' File Revision
@@ -445,13 +501,12 @@ flight_download = function(flight, user, pass, dirOut, files = NULL){
     
   }
 
-  flightFolder$req_url = paste0(ceda_ftp(), flightFolder$path)
+  flightFolder$req_url = paste0(ceda_url_dap(), flightFolder$path)
   
   for(i in 1:nrow(flightFolder)){
     req = httr2::request(flightFolder$req_url[i]) |> 
-      httr2::req_options(
-        httpauth = 1,
-        userpwd = paste0(user,":",pass)
+      httr2::req_auth_bearer_token(
+        token = ceda_token(user, pass)
       ) |> 
       httr2::req_progress(type = "down")
     
