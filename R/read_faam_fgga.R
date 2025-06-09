@@ -22,4 +22,7 @@ read_faam_fgga = function(filepath){
     dplyr::mutate(date = date+date_origin |> 
                     nanotime::as.nanotime())
   
+  
+  fgga
+  
 }
