@@ -33,15 +33,21 @@ read_nasa_ames_header <- function(file){
   header_element_length = stringr::str_split(header,"\\s+")  |> 
     purrr::map_int(length)
 
-  # header element length will be 1 and can be coerceced to numeric class if it is a number
+  # header element length will be 1 and can be coerced to numeric class if it is a number
   # defining the length of comments in a header. If these are pulled out we can split
   # header into useful elements
-  comment_lengths = header[header_element_length == 1]  |> 
-    as.numeric() |> 
-    stats::na.omit()
-
+  suppressWarnings({
+    comment_lengths = header[header_element_length == 1]  |> 
+      as.numeric() |> 
+      stats::na.omit()
+  })
+  
+  suppressWarnings({
+    numericHeader = as.numeric(header)
+  })
+  
   #Which lines describe number of lines in each section.
-  linebreaks <- which(as.numeric(header) %in% comment_lengths)
+  linebreaks <- which(numericHeader %in% comment_lengths)
 
   #get date column name
   datename <- header[linebreaks[2]-1]
