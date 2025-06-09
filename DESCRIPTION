@@ -17,9 +17,11 @@ Imports:
     cli,
     dplyr,
     httr2 (>= 1.0.0),
+    janitor,
     jsonlite,
     lubridate,
     nanotime,
+    nasaAmesR (>= 0.0.0.9000),
     ncmeta,
     purrr,
     rlang,
@@ -31,6 +33,6 @@ Imports:
     utils
 Suggests: 
     testthat (>= 3.0.0)
-Remotes:
-    willdrysdale/nasaAmesR
 Config/testthat/edition: 3
+Remotes:  
+    willdrysdale/nasaAmesR
