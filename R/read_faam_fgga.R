@@ -59,7 +59,7 @@ read_faam_fgga = function(filepath,
     }
     
     fgga = fgga |> 
-      dplyr::filter("instrument_flow" == 1) |> 
+      dplyr::filter(.data$instrument_flow %in% allowFlowFlags) |> 
       dplyr::select(-"instrument_flow")
     
     cols = cols[cols != "instrument_flow"]
