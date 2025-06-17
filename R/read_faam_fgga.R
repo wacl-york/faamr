@@ -53,6 +53,8 @@ read_faam_fgga = function(filepath,
       dplyr::relocate(tidyselect::all_of(cols)) # use to preserve the order of the columns, otherwise the before and after column order is different
   }
   
-  fgga
+  fgga |> 
+    dplyr::rename("co2_drymole_ppm" = "co2_value",
+                  "ch4_drymole_ppb" = "ch4_value")
   
 }
