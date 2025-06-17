@@ -6,15 +6,26 @@
 \usage{
 read_faam_fgga(
   filepath,
-  applyFlagBeforeAverage = TRUE,
+  allowExtrapolatedCal = TRUE,
+  requireHighFlow = FALSE,
   averageNanoString = NULL
 )
 }
 \arguments{
 \item{filepath}{path to file}
 
-\item{applyFlagBeforeAverage}{If averageNanoString is supplied, should any data where flag != 0 be removed
-default TRUE.}
+\item{allowExtrapolatedCal}{mole fraction error flags can take the values 0, 1 and 2.
+\itemize{
+   \item 0 signifies valid data and is always retained. 
+   \item 1 signifies reduced accuracy data where the calibration has been extrapolated
+   \item 2 signifies missing data, and these are always removed
+   }
+Setting this value to FALSE removed data where the flag is 1. Default TRUE}
+
+\item{requireHighFlow}{The FGGA is capable of 10 Hz measurements, but is required to be in High Flow mode. 
+This is flagged by the instrument_flow column, where flag == 1 is high flow mode, suitable for 10 Hz data
+when \code{requireHighFlow == TRUE}, all the data is filtered for flag == 1, otherwise, flag %in% c(0, 1) is allowed
+default FALSE}
 
 \item{averageNanoString}{string to pass to \code{nanotime::nano_floor(date, nanotime::as.nanoduration(averageNanoString))} for resampling date
 For example to resample to 10 Hz, argument is "00:00:00.1", for 1 hz it is "00:00:00"}
