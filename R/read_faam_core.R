@@ -93,6 +93,14 @@ read_faam_core = function(filepath,
     
   }
   
+  flagVars = unique(dat$name)[stringr::str_detect(unique(dat$name), "_FLAG")]
+  
+  # Some flag columns have NA instead of 0 for good data (e.g SO2_TECO_FLAG), replace NAs in flag columns with 0 when we find this
+  dat = dat |> 
+    dplyr::mutate(
+      value = ifelse(stringr::str_detect(name, "_FLAG") & is.na(value), 0, value)
+    )
+  
   if(!is.null(averageNanoString)){
     dat = dat |> 
       dplyr::mutate(date = nanotime::nano_floor(.data$date, nanotime::as.nanoduration(averageNanoString))) |> 
