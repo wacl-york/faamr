@@ -20,7 +20,8 @@ used to filter \code{tidync::hyper_array()}}
 \item{endDate}{string that can be coerced to a nanotime via: \code{nanotime::nanotime(endDate,format = "\%Y-\%m-\%d \%H:\%M:\%S")}
 used to filter \code{tidync::hyper_array()}}
 
-\item{averageNanoString}{string to pass to \code{nanotime::nano_floor(date, nanotime::as.nanoduration(averageNanoString))} for resampling date}
+\item{averageNanoString}{string to pass to \code{nanotime::nano_floor(date, nanotime::as.nanoduration(averageNanoString))} for resampling date
+For example to resample to 10 Hz, argument is "00:00:00.1", for 1 hz it is "00:00:00"}
 }
 \description{
 Reads faam core nitrates file

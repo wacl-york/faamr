@@ -4,10 +4,20 @@
 \alias{read_faam_fgga}
 \title{Read FAAM fgga}
 \usage{
-read_faam_fgga(filepath)
+read_faam_fgga(
+  filepath,
+  applyFlagBeforeAverage = TRUE,
+  averageNanoString = NULL
+)
 }
 \arguments{
 \item{filepath}{path to file}
+
+\item{applyFlagBeforeAverage}{If averageNanoString is supplied, should any data where flag != 0 be removed
+default TRUE.}
+
+\item{averageNanoString}{string to pass to \code{nanotime::nano_floor(date, nanotime::as.nanoduration(averageNanoString))} for resampling date
+For example to resample to 10 Hz, argument is "00:00:00.1", for 1 hz it is "00:00:00"}
 }
 \description{
 Reads the nasa ames files produced for the FAAM Fast Greenhouse Gas Analyser

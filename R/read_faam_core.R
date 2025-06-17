@@ -10,6 +10,7 @@
 #' @param selectVar vector of varibale names to load - loading all of them can take a long time!
 #' @param sps samples per second - one of 2, 4, 32, 64. default 32
 #' @param averageNanoString string to pass to \code{nanotime::nano_floor(date, nanotime::as.nanoduration(averageNanoString))} for resampling date
+#'                          For example to resample to 10 Hz, argument is "00:00:00.1", for 1 hz it is "00:00:00"
 #' 
 #' @author W. S. Drysdale
 #' 
@@ -21,7 +22,7 @@ read_faam_core = function(filepath,
                           endDate = NULL,
                           selectVar = NULL,
                           sps = c(2,4,32,64)[3],
-                          averageNanoString = NULL # to resample to 10 Hz, argument is "00:00:00.1"
+                          averageNanoString = NULL 
 ){
   
   dat_meta = ncmeta::nc_meta(filepath)

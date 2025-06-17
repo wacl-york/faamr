@@ -26,7 +26,8 @@ used to filter \code{tidync::hyper_array()}}
 
 \item{sps}{samples per second - one of 2, 4, 32, 64. default 32}
 
-\item{averageNanoString}{string to pass to \code{nanotime::nano_floor(date, nanotime::as.nanoduration(averageNanoString))} for resampling date}
+\item{averageNanoString}{string to pass to \code{nanotime::nano_floor(date, nanotime::as.nanoduration(averageNanoString))} for resampling date
+For example to resample to 10 Hz, argument is "00:00:00.1", for 1 hz it is "00:00:00"}
 }
 \description{
 Reads either the high time resolution or 1 Hz faam core files
