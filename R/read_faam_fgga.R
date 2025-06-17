@@ -19,8 +19,8 @@ read_faam_fgga = function(filepath){
   fgga = nasaAmesR::read_nasa_ames_1001(filepath) |> 
     stats::setNames(fgga_header$long_names) |> 
     janitor::clean_names() |> 
-    dplyr::mutate(date = date+date_origin |> 
-                    nanotime::as.nanotime())
+    dplyr::mutate(date = date+date_origin) |> 
+    dplyr::mutate(date = nanotime::as.nanotime(date))
   
   
   fgga
