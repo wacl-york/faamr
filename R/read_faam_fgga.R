@@ -55,11 +55,11 @@ read_faam_fgga = function(filepath,
     if(requireHighFlow){
       allowedFlowFlags = 1
     }else{
-      allowFlowFlags = c(0,1)
+      allowedFlowFlags = c(0,1)
     }
     
     fgga = fgga |> 
-      dplyr::filter(.data$instrument_flow %in% allowFlowFlags) |> 
+      dplyr::filter(.data$instrument_flow %in% allowedFlowFlags) |> 
       dplyr::select(-"instrument_flow")
     
     cols = cols[cols != "instrument_flow"]
