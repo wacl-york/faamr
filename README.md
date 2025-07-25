@@ -14,7 +14,7 @@ remotes::install_github("wacl-york/faamr")
 
 ## Data Download Prerequisite
 
-Users will require a CEDA account to download FAAM data. While these data are public, `faamr` makes use the [openDAP](https://help.ceda.ac.uk/article/4431-ceda-archive-web-download-and-services) endpoint, which requires authentication. Users can register for an account on the [CEDA website](https://services.ceda.ac.uk/cedasite/register/info/). 
+Users will require a CEDA account to download FAAM data. While these data are public, `faamr` makes use of the [openDAP](https://help.ceda.ac.uk/article/4431-ceda-archive-web-download-and-services) endpoint, which requires authentication. Users can register for an account on the [CEDA website](https://services.ceda.ac.uk/cedasite/register/info/). 
 
 You will need to provide your credentials to `faamr::flight_download()`. To avoid saving these credentials in your scripts, you can use the [keyring](https://cloud.r-project.org/web/packages/keyring/index.html) package to make use of your operating systems credential store.
 
@@ -68,7 +68,7 @@ returns
 ✖ Met Office Non-core
 ```
 
-The root of the flight folder is shown in full, and then the sub directories `core_raw`, `core_processed` `non-core` and `mo-non-core` are listed (or shown not to be present). Files with multiple file types, such as the flight summary are grouped together, and only the highest revision of a file is shown. The "file type" is shown after the hyphen on each row. This is the file name without the flight number, version and revision information included, so it is a flight agnostic identifier, allowing for data from multiple flights to be downloaded at once. This file type is what must be provided to the `flight_download()`
+The root of the flight folder is shown in full, and then the sub directories `core_raw`, `core_processed` `non-core` and `mo-non-core` are listed (or shown to not be present). Files with multiple file types, such as the flight summary are grouped together, and only the highest revision of a file is shown. The "file type" is shown after the hyphen on each row. This is the file name without the flight number, version and revision information included, so it is a flight agnostic identifier, allowing for data from multiple flights to be downloaded at once. This file type is what must be provided to the `flight_download()`
 
 Once flight numbers and data have been identified, a download can be triggered:
 
@@ -105,7 +105,7 @@ projectRoot
 
 ### Reading
 
-Several functions are provided to read data into R. A key part of this is that the timestamp is stored as 64 bit resolution in the `date` column using the [nanotime](https://cran.r-project.org/web/packages/nanotime/index.html) package. Some functions provide options for resampling of data on read, by providing a string that is interpretable using `nanotime::as.nanoduration()` e.g. to resample to 1 Hz `averageNanoString = "00:00:01`, and for 10 Hz `averageNanoString = "00:00:00.1`. Users should see individual function documentation for more information, and be aware of how data flags are or are not managed when resampling. 
+Several functions are provided to read data into R. A key part of this is that the timestamp is stored as 64 bit resolution in the `date` column using the [nanotime](https://cran.r-project.org/web/packages/nanotime/index.html) package. Some functions provide options for resampling of data on read, by providing a string that is interpretable using `nanotime::as.nanoduration()` e.g. to resample to 1 Hz `averageNanoString = "00:00:01"`, and for 10 Hz `averageNanoString = "00:00:00.1`. Users should see individual function documentation for more information, and be aware of how data flags are or are not managed when resampling. 
 
 #### Current Read functions
 

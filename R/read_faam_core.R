@@ -71,7 +71,7 @@ read_faam_core = function(filepath,
                     subsecond = .data$subsecond/max(.data$subsecond),
                     subsecond = .data$subsecond-min(.data$subsecond),
                     seconds_since_midnight = as.integer(.data$Var2) + .data$subsecond-1 + startSeconds,
-                    name = as.character(.data$Var3),
+                    "name" = as.character(.data$Var3),
                     date = (.data$seconds_since_midnight*1e9) + dateOrigin) |> 
       dplyr::select(tidyselect::all_of(c("date", "seconds_since_midnight", "name", "value")))
     
@@ -98,7 +98,7 @@ read_faam_core = function(filepath,
   # Some flag columns have NA instead of 0 for good data (e.g SO2_TECO_FLAG), replace NAs in flag columns with 0 when we find this
   dat = dat |> 
     dplyr::mutate(
-      value = ifelse(stringr::str_detect(name, "_FLAG") & is.na(value), 0, value)
+      "value" = ifelse(stringr::str_detect(.data$name, "_FLAG") & is.na(.data$value), 0, .data$value)
     )
   
   if(!is.null(averageNanoString)){
