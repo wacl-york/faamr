@@ -4,7 +4,7 @@
 \alias{list_flight_data_local}
 \title{List Flight Data Local}
 \usage{
-list_flight_data_local(dirContainingFlights, skipFlightListCheck)
+list_flight_data_local(dirContainingFlights, skipFlightListCheck = FALSE)
 }
 \arguments{
 \item{dirContainingFlights}{path to the directory that contains the flight folders. 
@@ -18,4 +18,7 @@ directories not downloaded using \code{flight_download()} are present.}
 }
 \description{
 Returns a tibble summarising the files that have been downloaded, which is useful for further processing
+}
+\author{
+W. S. Drysdale
 }

@@ -9,6 +9,10 @@
 #' @param skipFlightListCheck skips checking the listed directories against \code{list_flights}. 
 #'        Useful when working without a connection to CEDA but may cause unexpeceted errors if 
 #'        directories not downloaded using \code{flight_download()} are present. 
+#'        
+#' @author W. S. Drysdale
+#' 
+#' @export
 
 
 list_flight_data_local = function(dirContainingFlights, skipFlightListCheck = FALSE){
