@@ -2,6 +2,7 @@
 
 export(assign_file_type)
 export(check_flight_data)
+export(extract_fgga_uncert)
 export(faam_core_summary)
 export(faam_file_lookup)
 export(flight_download)
