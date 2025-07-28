@@ -8,7 +8,9 @@ read_faam_nitrates(
   filepath,
   startDate = NULL,
   endDate = NULL,
-  averageNanoString = NULL
+  averageNanoString = NULL,
+  allowReducedQuality = FALSE,
+  allowSuspect = FALSE
 )
 }
 \arguments{
@@ -22,6 +24,10 @@ used to filter \code{tidync::hyper_array()}}
 
 \item{averageNanoString}{string to pass to \code{nanotime::nano_floor(date, nanotime::as.nanoduration(averageNanoString))} for resampling date
 For example to resample to 10 Hz, argument is "00:00:00.1", for 1 hz it is "00:00:00"}
+
+\item{allowReducedQuality}{no / no2 flag == 1 corresponds to "reduced_quality". Should this be included in the data? Default FALSE}
+
+\item{allowSuspect}{no / no2 flag == 2 corresponds to "suspect". Should this be included in the data? Default FALSE}
 }
 \description{
 Reads faam core nitrates file
