@@ -70,11 +70,22 @@ read_nasa_ames_header <- function(file){
     stringr::str_split(" ")
 
   date = lubridate::ymd(paste(date[[1]][1:3],collapse = ""),tz = "UTC")
-
+  
+  # Special Comments
+  
+  special_comments = header[(hl-sum((comment_lengths[3:4]))):(hl-(comment_lengths[4]+1))]
+  
+  # Normal Comments
+  
+  normal_comments = header[(hl-(comment_lengths[4]-1)):hl]
+  
   # Return
   list(date = date,
        data_flags = data_flags,
        long_names = longnames,
-       header_length = hl)
+       header_length = hl,
+       special_comments = special_comments,
+       normal_comments = normal_comments
+       )
 
 }
