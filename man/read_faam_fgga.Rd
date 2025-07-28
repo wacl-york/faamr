@@ -8,7 +8,8 @@ read_faam_fgga(
   filepath,
   allowExtrapolatedCal = TRUE,
   requireHighFlow = FALSE,
-  averageNanoString = NULL
+  averageNanoString = NULL,
+  extractUncert = TRUE
 )
 }
 \arguments{
@@ -29,6 +30,8 @@ default FALSE}
 
 \item{averageNanoString}{string to pass to \code{nanotime::nano_floor(date, nanotime::as.nanoduration(averageNanoString))} for resampling date
 For example to resample to 10 Hz, argument is "00:00:00.1", for 1 hz it is "00:00:00"}
+
+\item{extractUncert}{Should the bias and uncertainty be extracted from the fGGA header. Uses \code{extract_fgga_uncert}. Default True.}
 }
 \description{
 Reads the nasa ames files produced for the FAAM Fast Greenhouse Gas Analyser

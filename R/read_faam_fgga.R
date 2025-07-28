@@ -14,6 +14,8 @@
 ##'                        This is flagged by the instrument_flow column, where flag == 1 is high flow mode, suitable for 10 Hz data
 ##'                        when \code{requireHighFlow == TRUE}, all the data is filtered for flag == 1, otherwise, flag %in% c(0, 1) is allowed
 ##'                        default FALSE
+##'                        
+##' @param extractUncert Should the bias and uncertainty be extracted from the fGGA header. Uses \code{extract_fgga_uncert}. Default True.
 ##' 
 ##' @inheritParams read_faam_core
 ##' 
@@ -24,7 +26,9 @@
 read_faam_fgga = function(filepath,
                           allowExtrapolatedCal = TRUE,
                           requireHighFlow = FALSE,
-                          averageNanoString = NULL){
+                          averageNanoString = NULL,
+                          extractUncert = TRUE
+                          ){
   
   fggaHeader = read_nasa_ames_header(filepath)
   
@@ -74,10 +78,23 @@ read_faam_fgga = function(filepath,
   fgga = fgga |> 
     tidyr::pivot_longer(-date,
                         names_sep = "_",
-                        names_to = c("species","type")) |> 
+                        names_to = c("species","type")) 
+  
+  pivotCols = c("value", "flag")
+  
+  if(extractUncert){
+    uncert = extract_fgga_uncert(filepath)
+    
+    fgga = fgga |> 
+      dplyr::left_join(uncert, by = c("species" = "name"))
+      
+    pivotCols = c("value", "flag", "bias", "uncert")
+  }
+  
+  fgga = fgga |> 
     tidyr::pivot_wider(names_from = "type") |> 
     dplyr::filter(.data$flag %in% allowedMoleFlags) |> 
-    tidyr::pivot_longer(c("value", "flag"), names_to = "type") |> 
+    tidyr::pivot_longer(tidyselect::all_of(pivotCols), names_to = "type") |> 
     tidyr::pivot_wider(names_from = c("species", "type"), names_sep = "_")
   
   if(!is.null(averageNanoString)){
@@ -124,6 +141,6 @@ extract_fgga_uncert = function(filepath){
       stringr::word(2, sep = "\\/") |> 
       stringr::word(2, sep = "\\s+") |> 
       as.numeric(),
-    name = c("co2_ppm", "ch4_ppb")
+    name = c("co2", "ch4")
   )
 }
