@@ -17,6 +17,8 @@
 ##'                        
 ##' @param extractUncert Should the bias and uncertainty be extracted from the fGGA header. Uses \code{extract_fgga_uncert}. Default True.
 ##' 
+##' @param applyBias Should the bias read by extractUncert be applied? Default True. Bias columns will be set to NA to avoid it being applied multiple times
+##' 
 ##' @inheritParams read_faam_core
 ##' 
 ##' @author W. S. Drysdale
@@ -27,7 +29,8 @@ read_faam_fgga = function(filepath,
                           allowExtrapolatedCal = TRUE,
                           requireHighFlow = FALSE,
                           averageNanoString = NULL,
-                          extractUncert = TRUE
+                          extractUncert = TRUE,
+                          applyBias = TRUE
                           ){
   
   fggaHeader = read_nasa_ames_header(filepath)
@@ -41,11 +44,11 @@ read_faam_fgga = function(filepath,
   fgga = nasaAmesR::read_nasa_ames_1001(filepath) 
   
   if(ncol(fgga) == 5){
-    cols = c("date", "co2_value", "co2_flag", "ch4_value", "ch4_flag")
+    cols = c("date", "co2_drymole", "co2_flag", "ch4_drymole", "ch4_flag")
   }
   
   if(ncol(fgga) == 6){
-    cols = c("date", "co2_value", "co2_flag", "ch4_value", "ch4_flag", "instrument_flow")
+    cols = c("date", "co2_drymole", "co2_flag", "ch4_drymole", "ch4_flag", "instrument_flow")
   }
   
   fgga = fgga |>  
@@ -75,27 +78,38 @@ read_faam_fgga = function(filepath,
     allowedMoleFlags = 0
   }
   
-  fgga = fgga |> 
-    tidyr::pivot_longer(-date,
-                        names_sep = "_",
-                        names_to = c("species","type")) 
-  
-  pivotCols = c("value", "flag")
+  pivotCols = c("drymole", "flag")
   
   if(extractUncert){
-    uncert = extract_fgga_uncert(filepath)
+    uncert = extract_fgga_uncert(filepath) |> 
+      tidyr::pivot_wider(names_from = c("name", "stat"), names_sep = "_")
     
-    fgga = fgga |> 
-      dplyr::left_join(uncert, by = c("species" = "name"))
+    fgga = fgga |>
+      dplyr::bind_cols(uncert) 
       
-    pivotCols = c("value", "flag", "bias", "uncert")
+    if(applyBias){
+      fgga = fgga |> 
+        dplyr::mutate(
+          co2_drymole = .data$co2_drymole-.data$co2_bias,
+          ch4_drymole = .data$ch4_drymole-.data$ch4_bias, 
+        ) |> 
+        dplyr::mutate(
+          co2_bias = NA,
+          ch4_bias = NA
+        )
+      
+    }
+    
+    pivotCols = c("drymole", "flag", "bias", "uncert")
+    
   }
   
   fgga = fgga |> 
+    tidyr::pivot_longer(-date, names_sep = "_", 
+                         names_to = c("species", "type")) |>
     tidyr::pivot_wider(names_from = "type") |> 
     dplyr::filter(.data$flag %in% allowedMoleFlags) |> 
-    tidyr::pivot_longer(tidyselect::all_of(pivotCols), names_to = "type") |> 
-    tidyr::pivot_wider(names_from = c("species", "type"), names_sep = "_")
+    tidyr::pivot_wider(names_from = "species", values_from = pivotCols, names_glue = "{species}_{.value}")
   
   if(!is.null(averageNanoString)){
 
@@ -109,9 +123,7 @@ read_faam_fgga = function(filepath,
       dplyr::relocate(tidyselect::all_of(cols)) # use to preserve the order of the columns, otherwise the before and after column order is different
   }
   
-  fgga |> 
-    dplyr::rename("co2_drymole_ppm" = "co2_value",
-                  "ch4_drymole_ppb" = "ch4_value")
+  fgga 
   
 }
 
@@ -142,5 +154,6 @@ extract_fgga_uncert = function(filepath){
       stringr::word(2, sep = "\\s+") |> 
       as.numeric(),
     name = c("co2", "ch4")
-  )
+  ) |> 
+    tidyr::pivot_longer(c("bias", "uncert"), names_to = "stat")
 }

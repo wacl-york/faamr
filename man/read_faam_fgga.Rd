@@ -9,7 +9,8 @@ read_faam_fgga(
   allowExtrapolatedCal = TRUE,
   requireHighFlow = FALSE,
   averageNanoString = NULL,
-  extractUncert = TRUE
+  extractUncert = TRUE,
+  applyBias = TRUE
 )
 }
 \arguments{
@@ -32,6 +33,8 @@ default FALSE}
 For example to resample to 10 Hz, argument is "00:00:00.1", for 1 hz it is "00:00:00"}
 
 \item{extractUncert}{Should the bias and uncertainty be extracted from the fGGA header. Uses \code{extract_fgga_uncert}. Default True.}
+
+\item{applyBias}{Should the bias read by extractUncert be applied? Default True. Bias columns will be set to NA to avoid it being applied multiple times}
 }
 \description{
 Reads the nasa ames files produced for the FAAM Fast Greenhouse Gas Analyser
