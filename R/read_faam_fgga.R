@@ -90,8 +90,8 @@ read_faam_fgga = function(filepath,
     if(applyBias){
       fgga = fgga |> 
         dplyr::mutate(
-          co2_drymole = .data$co2_drymole-.data$co2_bias,
-          ch4_drymole = .data$ch4_drymole-.data$ch4_bias, 
+          co2_drymole = .data$co2_drymole+.data$co2_bias,
+          ch4_drymole = .data$ch4_drymole+.data$ch4_bias, 
         ) |> 
         dplyr::mutate(
           co2_bias = NA,
