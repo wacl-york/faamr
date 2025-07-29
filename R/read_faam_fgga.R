@@ -145,9 +145,9 @@ extract_fgga_uncert = function(filepath){
   stat = c(header$normal_comments[uncertaintiesBegin+1],header$normal_comments[uncertaintiesBegin+2])
   
   tibble::tibble(
-    bias = stat |>  
-      stringr::word(1, sep = "\\+") |> 
-      stringr::str_trim() |> 
+    bias = stat |>   
+      stringr::word(1, sep = "\\/") |> 
+      stringr::word(1, sep = "\\s+") |> 
       as.numeric(),
     uncert = stat |>  
       stringr::word(2, sep = "\\/") |> 
