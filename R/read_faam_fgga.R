@@ -138,16 +138,37 @@ read_faam_fgga = function(filepath,
 ##' 
 ##' @export
 
-extract_fgga_uncert = function(filepath){
+extract_fgga_uncert = function(
+    filepath
+){
   header = read_nasa_ames_header(filepath)
   uncertaintiesBegin = grep("The mean biases and 1-sigma overall uncertainties are therefore quoted as:", header$normal_comments)
+  
+  if(length(uncertaintiesBegin) == 0){
+    warning(paste0("Unable to extract uncertainties for ", filepath, "\nReturning bias = 0, uncert = 0"))
+    
+    default = tibble(
+      name = c("co2", "co2", "ch4", "ch4"),
+      stat = c("bias", "uncert", "bias", "uncert"),
+      value = c(0, 0, 0, 0)
+    )
+    
+    return(default)
+  }
   
   stat = c(header$normal_comments[uncertaintiesBegin+1],header$normal_comments[uncertaintiesBegin+2])
   
   tibble::tibble(
-    bias = stat |>   
-      stringr::word(1, sep = "\\/") |> 
-      stringr::word(1, sep = "\\s+") |> 
+    bias = stat |> 
+      stringr::str_split("\\+") |> 
+      lapply(
+        \(x){
+          x = stringr::str_trim(x)
+          x = x[nzchar(x)]
+          x[1]
+        }
+      ) |> 
+      unlist() |> 
       as.numeric(),
     uncert = stat |>  
       stringr::word(2, sep = "\\/") |> 
