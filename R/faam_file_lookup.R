@@ -50,6 +50,7 @@ faam_file_lookup = function(){
     "york-tildas.na",              "york-tildas_faam(.*?).na",                     NA,
     "york-aqdnox.na",              "york-aqdnox_faam(.*?).na",                     "read_yorknox_data",
     "york-gc-fid-lab.na",          "york-gc-fid-lab_faam(.*?).na",                 NA,
+    "york-gc-fid-lab.na.csv",      "york-gc-fid-lab_faam(.*?).na.csv",             "read_york_gc_fid_lab",
     "00README",                    "00README",                                     NA
   )
 }
