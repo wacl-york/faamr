@@ -33,7 +33,7 @@ read_faam_fgga = function(filepath,
                           applyBias = TRUE
                           ){
   
-  fggaHeader = read_nasa_ames_header(filepath)
+  fggaHeader = nasaAmesR::read_nasa_ames_header(filepath)
   
   if(stringr::str_detect(fggaHeader$long_names[1], "fractional")){
     dateOrigin = nanotime::nanotime(fggaHeader$long_names[1], format = "Time (fractional seconds elapsed since %Y-%m-%d %H:%M:%E9S UTC)", tz = "UTC")
@@ -141,7 +141,7 @@ read_faam_fgga = function(filepath,
 extract_fgga_uncert = function(
     filepath
 ){
-  header = read_nasa_ames_header(filepath)
+  header = nasaAmesR::read_nasa_ames_header(filepath)
   uncertaintiesBegin = grep("The mean biases and 1-sigma overall uncertainties are therefore quoted as:", header$normal_comments)
   
   if(length(uncertaintiesBegin) == 0){

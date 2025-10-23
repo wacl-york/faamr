@@ -125,4 +125,4 @@ Some helper functions are also supplied:
 - `faam_core_summary()` - returns a list of all the variables in a FAAM core file, including what samples per second (sps) grid they are on when not looking at the 1 Hz version.
 - `get_core_date_origin()` - returns the date value of the "seconds since" time dimention in the core NCDF.
 - `get_weight_off_wheels()` - returns a data\.frame of the time where WOW_IND (a flag for when there is or is not weight on the wheels of the aircraft) is zero. Useful for a coarse start / end time filter when using `read_faam_core()`.
-- `read_nasa_ames_header()` returns some components of a nasa ames header useful for other read functions. This is likley to be moved to `willdrysdale/nasaAmesR` in the future.
+- `read_nasa_ames_header()` migrated to `willdrysdale/nasaAmesR` in the future.

@@ -33,7 +33,7 @@ read_york_gc_fid_lab = function(
     
   }
   
-  header = read_nasa_ames_header(filepath)
+  header = nasaAmesR::read_nasa_ames_header(filepath)
   
   dat = nasaAmesR::read_nasa_ames_1001(filepath) |> 
     stats::setNames(header$long_names) |> 
